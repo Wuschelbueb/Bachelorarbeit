@@ -33,11 +33,10 @@ public class bachelor extends Application {
 
     @Override
     public void start(Stage stage) throws FileNotFoundException {
-        
+
         /**
          * Binärisierung des Bildes. Funktioniertgut mit 0x666666
          */
-
         //Creating an image 
         Image image = new Image(new FileInputStream("C:\\Users\\David\\Google Drive\\Unifr\\3. Jahr\\Bachelorarbeit\\Titelbilder\\slz-002_1896_041_0005.jpg"));
         int width = (int) image.getWidth();
@@ -87,10 +86,10 @@ public class bachelor extends Application {
 
         //Displaying the contents of the stage 
         stage.show();
+    }
 
 //        Color test = image.getPixelReader().getColor(x, y);
 //        System.out.println(test);
-    }
     //    @Override
     //    public void start(Stage primaryStage) {
     //        Button btn = new Button();
@@ -112,12 +111,12 @@ public class bachelor extends Application {
     //        primaryStage.setScene(scene);
     //        primaryStage.show();
     //    }
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        //launch(args);
+        
 
     }
 
