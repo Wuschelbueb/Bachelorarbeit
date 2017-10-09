@@ -6,23 +6,22 @@
 package bachelor.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import javafx.application.Application;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-
+import java.util.ArrayList;
 /**
  *
  * @author David
  */
-public class directory extends Application {
+public class directory {
 
-    @Override
-    public void start(Stage stage) throws FileNotFoundException {
-        DirectoryChooser whole = new DirectoryChooser();
-        whole.setTitle("Whole Pictures");
-        File defaultDirectory = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\");
-        whole.setInitialDirectory(defaultDirectory);
+    public static ArrayList<String> showFiles(File[] files) {
+        ArrayList<String> listOfFiles = new ArrayList<>();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                showFiles(files);
+            } else {
+                listOfFiles.add(file.getName());
+            }
+        }
+        return listOfFiles;
     }
-
 }

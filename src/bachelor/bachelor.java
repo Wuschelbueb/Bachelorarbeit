@@ -5,41 +5,25 @@
  */
 package bachelor;
 
-import bachelor.util.crop;
-import bachelor.util.directory;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import javafx.scene.image.Image;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-import java.io.FileInputStream;
+import bachelor.util.histogramCreation;
 import java.io.FileNotFoundException;
-import static javafx.application.Application.launch;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import sun.launcher.resources.launcher;
+import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  *
  * @author David
  */
 public class bachelor {
-    
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        directory.launch(args);
+    public static void main(String[] args) throws FileNotFoundException {
+        PrintStream fileStream = new PrintStream("test.txt");
+        System.setOut(fileStream);
+        histogramCreation test = new histogramCreation();
+        System.out.println(test.horizontalMatrix());
     }
-    
+
 }
