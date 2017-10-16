@@ -5,10 +5,12 @@
  */
 package bachelor;
 
+import bachelor.util.Graph;
 import bachelor.util.histogramCreation;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.List;
+import org.jfree.ui.RefineryUtilities;
 
 /**
  *
@@ -20,10 +22,17 @@ public class bachelor {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws FileNotFoundException {
-        PrintStream fileStream = new PrintStream("test.txt");
-        System.setOut(fileStream);
+//        PrintStream fileStream = new PrintStream("test.txt");
+//        System.setOut(fileStream);
         histogramCreation test = new histogramCreation();
-        System.out.println(test.horizontalMatrix());
+        for(List<Integer> k: test.horizontalMatrix()){
+            Graph chart = new Graph(
+                "Picture",
+                ""+test,k);
+        chart.pack();
+        RefineryUtilities.centerFrameOnScreen(chart);
+        chart.setVisible(true);
+        }
+        
     }
-
 }

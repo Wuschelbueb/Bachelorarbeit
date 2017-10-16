@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -20,28 +21,30 @@ import javafx.scene.paint.Color;
  */
 public class histogramCreation {
 
+    //kreiert eine ArrayList mit allen Files im angegebenen Verzeichnis
     File[] files = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\").listFiles();
-    ArrayList<String> halbeBilder = directory.showFiles(files);
+    ArrayList<String> croppedPictures = directory.showFiles(files);
 
+    /**
+     * Zählt die Pixel des ausgeschnittenen Bildes. Generiert eine ArrayList,
+     * welche man zu Erstellung eines horizontalen Histograms benötigt.
+     *
+     * @return
+     * @throws FileNotFoundException
+     */
     public List<List<Integer>> horizontalMatrix() throws FileNotFoundException {
 
-        List<List<Integer>> ulitmativerArray = new ArrayList<List<Integer>>();
+        List<List<Integer>> AllHorizontalHistograms = new ArrayList<List<Integer>>();
+        
 
-        for (int i = 0; i < halbeBilder.size(); i++) {
+        for (String i : croppedPictures) {
 
-            Image croppedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + halbeBilder.get(i)));
-
-            /**
-             * zählt die schwarzen pixel auf dem bildausschnitt
-             *
-             * @numberOfBlackPixelsPerRow wird später benötigt um verschiedene
-             * bildausschnitte miteinander zu vergleichen
-             */
+            Image croppedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + i));
             int counter = 0;
             int heightOfImage = (int) croppedImage.getHeight();
-            int widthOfImage = (int) croppedImage.getWidth();
+            int widthOfImage = (int) croppedImage.getWidth();            
             List<Integer> resultsOfAllHistograms = new ArrayList<>();
-           
+
             for (int y = 0; y < heightOfImage; y++) {
                 for (int x = 0; x < widthOfImage; x++) {
                     Color croppedImagePixelColor = croppedImage.getPixelReader().getColor(x, y);
@@ -52,14 +55,43 @@ public class histogramCreation {
                 resultsOfAllHistograms.add(counter);
                 counter = 0;
             }
-            ulitmativerArray.add(resultsOfAllHistograms);
+            AllHorizontalHistograms.add(resultsOfAllHistograms);
         }
-        return ulitmativerArray;
+        return AllHorizontalHistograms;
     }
 
-    public static int[] verticalMatrix() {
-//        System.out.println("test");
-        return new int[3];
-    }
+    /**
+     * Zählt die Pixel des ausgeschnittenen Bildes. Generiert eine ArrayList,
+     * welche man zu Erstellung eines vertikalen Histograms benötigt. Ist das
+     * normale Histogram.
+     *
+     * @return
+     * @throws FileNotFoundException
+     */
+    public List<List<Integer>> verticalMatrix() throws FileNotFoundException {
 
+        List<List<Integer>> AllVerticalHistograms = new ArrayList<List<Integer>>();
+
+        for (String i : croppedPictures) {
+
+            Image croppedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + i));
+            int counter = 0;
+            int heightOfImage = (int) croppedImage.getHeight();
+            int widthOfImage = (int) croppedImage.getWidth();
+            List<Integer> resultsOfAllHistograms = new ArrayList<>();
+
+            for (int y = 0; y < widthOfImage; y++) {
+                for (int x = 0; x < heightOfImage; x++) {
+                    Color croppedImagePixelColor = croppedImage.getPixelReader().getColor(x, y);
+                    if (croppedImagePixelColor.equals(Color.BLACK)) {
+                        counter++;
+                    }
+                }
+                resultsOfAllHistograms.add(counter);
+                counter = 0;
+            }
+            AllVerticalHistograms.add(resultsOfAllHistograms);
+        }
+        return AllVerticalHistograms;
+    }
 }
