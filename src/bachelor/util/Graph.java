@@ -23,7 +23,7 @@ import org.jfree.ui.ApplicationFrame;
  */
 public class Graph extends ApplicationFrame {
 
-    public Graph(String applicationTitle, String chartTitle, List<Integer> histogramType) throws FileNotFoundException {
+    public Graph(String applicationTitle, String chartTitle, List<Double> histogramType) throws FileNotFoundException {
         super(applicationTitle);
 //        for(List<Integer> k : histogramType){
             JFreeChart barChart = ChartFactory.createBarChart(
@@ -41,11 +41,11 @@ public class Graph extends ApplicationFrame {
         
     }
 
-    private DefaultCategoryDataset createDataset(List<Integer> Matrix) throws FileNotFoundException {
+    private DefaultCategoryDataset createDataset(List<Double> Matrix) throws FileNotFoundException {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         histogramCreation horzMatrix = new histogramCreation();
         int j = 1;
-        for (Integer i : Matrix) {
+        for (Double i : Matrix) {
             dataset.setValue(i, "Amount of Black Pixels", "" + j);
             j++;
         }

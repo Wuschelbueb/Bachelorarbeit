@@ -21,6 +21,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
+import org.opencv.imgproc.*;
+import org.opencv.core.*;
 
 /**
  *
@@ -30,8 +32,9 @@ public class PictureManipulation {
 
     /**
      * creates a list of all files in a directory.
+     *
      * @param files
-     * @return 
+     * @return
      */
     public static ArrayList<String> createListOfFiles(File[] files) {
         ArrayList<String> listOfFiles = new ArrayList<>();
@@ -44,27 +47,31 @@ public class PictureManipulation {
         }
         return listOfFiles;
     }
-/**
- * creates an image (with javaFX) of the choosen file.
- * @param originalFile
- * @return
- * @throws FileNotFoundException 
- */
+
+    /**
+     * creates an image (with javaFX) of the choosen file.
+     *
+     * @param originalFile
+     * @return
+     * @throws FileNotFoundException
+     */
     public static Image createImage(File originalFile) throws FileNotFoundException {
         Image rawImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\" + originalFile.getName()));
         return rawImage;
     }
-/**
- * crops and saves the old image as a new file. we do that with javaFX commands
- * it is important, that you use the starting parameters to set the rectangle.
- * because the rectangle defines the size of the new image.
- * @param originalFile
- * @param xStartingPostion
- * @param xDistance
- * @param yStartingPostion
- * @param yDistance
- * @throws FileNotFoundException 
- */
+
+    /**
+     * crops and saves the old image as a new file. we do that with javaFX
+     * commands it is important, that you use the starting parameters to set the
+     * rectangle. because the rectangle defines the size of the new image.
+     *
+     * @param originalFile
+     * @param xStartingPostion
+     * @param xDistance
+     * @param yStartingPostion
+     * @param yDistance
+     * @throws FileNotFoundException
+     */
     public static void cropAndSaveImage(File originalFile, int xStartingPostion, int xDistance, int yStartingPostion, int yDistance) throws FileNotFoundException {
         Image rawImage = createImage(originalFile);
         String NameOfFile = originalFile.getName();
@@ -103,9 +110,10 @@ public class PictureManipulation {
 
     /**
      * creates the horizontal matrix of the new Image.
+     *
      * @param newImage
      * @return
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     public static List<Integer> horizontalMatrix(File newImage) throws FileNotFoundException {
         Image croppedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + newImage.getName()));
@@ -128,14 +136,15 @@ public class PictureManipulation {
 
     /**
      * creates the vertical matrix of the new Image.
+     *
      * @param newImage
      * @return
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
-    public static List<Integer> verticalMatrix(File newImage) throws FileNotFoundException {
+    public static List<Double> verticalMatrix(File newImage) throws FileNotFoundException {
         Image croppedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + newImage.getName()));
-        List<Integer> verticalMatrix = new ArrayList<>();
-        int counter = 0;
+        List<Double> verticalMatrix = new ArrayList<>();
+        double counter = 0;
         int heightOfImage = (int) croppedImage.getHeight();
         int widthOfImage = (int) croppedImage.getWidth();
         for (int y = 0; y < widthOfImage; y++) {
@@ -150,62 +159,99 @@ public class PictureManipulation {
         }
         return verticalMatrix;
     }
-/**
- * aligns two matrices with each other. we have an referential matrix, and a changing matrix.
- * the changing matrix gets aligned with the referential.
- * first we need to find the max value of both matrices and the position of this value.
- * as soon as we have found it, we can check if they are already aligned with each other.
- * if so, go to the compareMatrices() method, else align them properly.
- * @param refMatrix
- * @param changingMatrix 
- */
-    public static void alignMatrices(List<Integer> refMatrix, List<Integer> changingMatrix) {
+
+    /**
+     * aligns two matrices with each other. we have an referential matrix, and a
+     * changing matrix. the changing matrix gets aligned with the referential.
+     * first we need to find the max value of both matrices and the position of
+     * this value. as soon as we have found it, we can check if they are already
+     * aligned with each other. if so, go to the compareMatrices() method, else
+     * align them properly.
+     *
+     * @param refMatrix
+     * @param changingMatrix
+     */
+    public static void alignMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
         int refSize = refMatrix.size();
         int chaSize = changingMatrix.size();
-        int refMax, chaMax, refMaxPos, chaMaxPos;
+        double refMax, chaMax;
+        int refMaxPos, chaMaxPos;
         chaMax = refMax = Integer.MIN_VALUE;
         chaMaxPos = refMaxPos = -1;
         for (int i = 0; i < refSize; i++) {
-            int value = refMatrix.get(i);
+            double value = refMatrix.get(i);
             if (value > refMax) {
                 refMax = value;
                 refMaxPos = i;
             }
         }
         for (int i = 0; i < chaSize; i++) {
-            int value = changingMatrix.get(i);
+            double value = changingMatrix.get(i);
             if (value > chaMax) {
                 chaMax = value;
                 chaMaxPos = i;
             }
         }
         if (refMaxPos == chaMaxPos) {
+//            System.out.println("same");
             compareMatrices(refMatrix, changingMatrix);
         } else if (refMaxPos > chaMaxPos) {
             int difference = refMaxPos - chaMaxPos;
-            List<Integer> newChangingMatrix = new ArrayList<>();
+            List<Double> newChangingMatrix = new ArrayList<>();
             for (int i = 0; i < difference; i++) {
-                newChangingMatrix.set(i, 0);
+                newChangingMatrix.add(i, 0.0);
             }
             for (int i = 0; i < chaSize - difference; i++) {
-                newChangingMatrix.set(i + difference, refMatrix.get(i));
+                newChangingMatrix.add(i + difference, changingMatrix.get(i));
             }
+//            System.out.println("right shit: "+newChangingMatrix);
             compareMatrices(refMatrix, newChangingMatrix);
         } else {
             int difference = chaMaxPos - refMaxPos;
-            List<Integer> newChangingMatrix = new ArrayList<>();
-            for (int i = difference; i < chaSize - difference; i++) {
-                newChangingMatrix.set(i - difference, refMatrix.get(i));
+            List<Double> newChangingMatrix = new ArrayList<>();
+            for (int i = difference; i < chaSize; i++) {
+                newChangingMatrix.add(i - difference, changingMatrix.get(i));
             }
-            for (int i = chaSize-difference; i < chaSize; i++) {
-                newChangingMatrix.set(i, 0);
+            for (int i = chaSize - difference; i < chaSize; i++) {
+                newChangingMatrix.add(i, 0.0);
             }
+//            System.out.println("left shift: "+newChangingMatrix);
             compareMatrices(refMatrix, newChangingMatrix);
         }
     }
 
-    private static void compareMatrices(List<Integer> refMatrix, List<Integer> changingMatrix) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    /**
+     * normalizes matrix. easier to compare the graphs with each other now.
+     * because the scale ends always at one. to normalize the matrix you need
+     * divide each element of the list with the sum of all elements
+     *
+     * @param Matrix
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static List<Double> normalizeMatrix(List<Double> Matrix) throws FileNotFoundException {
+        double sum = 0;
+        List<Double> normalizedMatrix = new ArrayList<>();
+        for (int i = 0; i < Matrix.size(); i++) {
+            sum += Matrix.get(i);
+        }
+        for (int i = 0; i < Matrix.size(); i++) {
+            double matrixValue = Matrix.get(i);
+            double relativValue = matrixValue / sum;
+            normalizedMatrix.add(i, relativValue);
+        }
+        return normalizedMatrix;
+    }
+
+    private static void compareMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
+        List<Double> normRefMatrix = normalizeMatrix(refMatrix);
+        List<Double> normChaMatrix = normalizeMatrix(changingMatrix);
+        System.out.println(normChaMatrix);
+        System.out.println(normRefMatrix);
+        Mat mat = new Mat();
+        mat.create(normRefMatrix.size(), 1, 0);
+        
+//        Imgproc.compareHist(normRefMatrix, normChaMatrix, 0);
     }
 
 }
