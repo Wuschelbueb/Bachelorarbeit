@@ -243,15 +243,34 @@ public class PictureManipulation {
         return normalizedMatrix;
     }
 
-    private static void compareMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
+    private static int compareMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
         List<Double> normRefMatrix = normalizeMatrix(refMatrix);
         List<Double> normChaMatrix = normalizeMatrix(changingMatrix);
-        System.out.println(normChaMatrix);
-        System.out.println(normRefMatrix);
-        Mat mat = new Mat();
-        mat.create(normRefMatrix.size(), 1, 0);
-        
-//        Imgproc.compareHist(normRefMatrix, normChaMatrix, 0);
+        List<Double> percentageValues = new ArrayList<>();
+        double sumOfpercentageValues = 0;
+        int totalPercentage;
+        for (int i =0; i<normChaMatrix.size(); i++){
+            double x = normRefMatrix.get(i);
+            double y = normChaMatrix.get(i);
+            double percentage;
+            if (x > y){
+                percentage = y/x;
+                percentageValues.add(i, percentage);
+            } else if (x<y){
+                double temp = y/x;
+                percentage = Math.abs(temp-2);
+                percentageValues.add(i, percentage);
+            } else {
+                //muss noch geändert werden.
+                percentageValues.add(i, x);
+            }
+        }
+        for (int i =0; i<percentageValues.size(); i++){
+            sumOfpercentageValues += percentageValues.get(i);
+        }
+        totalPercentage = (int) sumOfpercentageValues/percentageValues.size();
+        System.out.println(totalPercentage);
+        return totalPercentage;
     }
 
 }
