@@ -5,20 +5,18 @@
  */
 package bachelor;
 
-import bachelor.util.Graph;
 import bachelor.util.PictureManipulation;
-import bachelor.util.histogramCreation;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.jfree.ui.RefineryUtilities;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 /**
  *
  * @author David
  */
-public class bachelor {
+public class bachelor extends Application {
 
     /**
      * @param args the command line arguments
@@ -26,15 +24,18 @@ public class bachelor {
     public static void main(String[] args) throws FileNotFoundException {
 //        PrintStream fileStream = new PrintStream("test.txt");
 //        System.setOut(fileStream);
-//        histogramCreation test = new histogramCreation();
-//        for(List<Integer> k: test.horizontalMatrix()){
+//        File oFile = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\");
+//        PictureManipulation.cropAndSaveImage(oFile, 0, 0, 0, 0);
+//        File newImage = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\");
+//        List<Integer> ImageToMatrix = PictureManipulation.horizontalMatrix(newImage);
+////        for(List<Integer> k: test){
 //            Graph chart = new Graph(
 //                "Picture",
-//                "bah",k);
+//                "bah",ImageToMatrix);
 //        chart.pack();
 //        RefineryUtilities.centerFrameOnScreen(chart);
 //        chart.setVisible(true);
-//        }
+////        }
         List<Double> test = new ArrayList<>();
         test.add(0.0);
         test.add(2.0);
@@ -47,11 +48,16 @@ public class bachelor {
         test1.add(2.0);
         test1.add(8.0);
         test1.add(3.0);
-        test1.add(5.0);
+        test1.add(6.0);
         test1.add(0.0);
-        System.out.println("refMatrix: "+test);
-        System.out.println("chaMatrix: "+test1);
+        System.out.println("refMatrix: " + test);
+        System.out.println("chaMatrix: " + test1);
         PictureManipulation.alignMatrices(test, test1);
 
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -5,14 +5,11 @@
  */
 package bachelor.util;
 
-import static bachelor.util.directory.showFiles;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -21,8 +18,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
-import org.opencv.imgproc.*;
-import org.opencv.core.*;
 
 /**
  *
@@ -40,7 +35,7 @@ public class PictureManipulation {
         ArrayList<String> listOfFiles = new ArrayList<>();
         for (File file : files) {
             if (file.isDirectory()) {
-                showFiles(files);
+                createListOfFiles(files);
             } else {
                 listOfFiles.add(file.getName());
             }
@@ -223,7 +218,7 @@ public class PictureManipulation {
     /**
      * normalizes matrix. easier to compare the graphs with each other now.
      * because the scale ends always at one. to normalize the matrix you need
-     * divide each element of the list with the sum of all elements
+     * divide each element of the list with the sum of all elements.
      *
      * @param Matrix
      * @return
@@ -243,33 +238,59 @@ public class PictureManipulation {
         return normalizedMatrix;
     }
 
-    private static int compareMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
+    /**
+     * compares to normed list/matrices with each other. the result is the
+     * similarity of the two matrices (in percentage).
+     *
+     * @param refMatrix
+     * @param changingMatrix
+     * @return
+     * @throws FileNotFoundException
+     */
+    private static double compareMatrices(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
         List<Double> normRefMatrix = normalizeMatrix(refMatrix);
         List<Double> normChaMatrix = normalizeMatrix(changingMatrix);
         List<Double> percentageValues = new ArrayList<>();
         double sumOfpercentageValues = 0;
-        int totalPercentage;
-        for (int i =0; i<normChaMatrix.size(); i++){
+        double totalPercentage;
+        for (int i = 0; i < normChaMatrix.size(); i++) {
             double x = normRefMatrix.get(i);
             double y = normChaMatrix.get(i);
             double percentage;
-            if (x > y){
-                percentage = y/x;
+            if (x > y) {
+                percentage = y / x;
                 percentageValues.add(i, percentage);
-            } else if (x<y){
-                double temp = y/x;
-                percentage = Math.abs(temp-2);
+            } else if (x < y) {
+                double temp = y / x;
+                percentage = Math.abs(temp - 2);
                 percentageValues.add(i, percentage);
             } else {
-                //muss noch geändert werden.
-                percentageValues.add(i, x);
+                percentageValues.add(i, 1.0);
             }
         }
-        for (int i =0; i<percentageValues.size(); i++){
+        for (int i = 0; i < percentageValues.size(); i++) {
             sumOfpercentageValues += percentageValues.get(i);
         }
-        totalPercentage = (int) sumOfpercentageValues/percentageValues.size();
+        totalPercentage = (sumOfpercentageValues / percentageValues.size());
         System.out.println(totalPercentage);
+        return totalPercentage;
+    }
+
+    /**
+     * Takes the percentages of the horizontal and vertical Results of a picture
+     * and calculates how well the new picture fits with the referential
+     * picture.
+     *
+     * @param vertHorzPctValues
+     * @return
+     */
+    public static double totalVertHorzPct(List<Double> vertHorzPctValues) {
+        double sumOfPctValues = 0;
+        double totalPercentage;
+        for (int i = 0; i < vertHorzPctValues.size(); i++) {
+            sumOfPctValues += vertHorzPctValues.get(i);
+        }
+        totalPercentage = sumOfPctValues / vertHorzPctValues.size();
         return totalPercentage;
     }
 

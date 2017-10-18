@@ -43,7 +43,6 @@ public class Graph extends ApplicationFrame {
 
     private DefaultCategoryDataset createDataset(List<Double> Matrix) throws FileNotFoundException {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        histogramCreation horzMatrix = new histogramCreation();
         int j = 1;
         for (Double i : Matrix) {
             dataset.setValue(i, "Amount of Black Pixels", "" + j);
