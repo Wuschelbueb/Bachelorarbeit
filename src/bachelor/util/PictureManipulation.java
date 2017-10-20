@@ -227,13 +227,12 @@ public class PictureManipulation {
     public static List<Double> normalizeMatrix(List<Double> Matrix) throws FileNotFoundException {
         double sum = 0;
         List<Double> normalizedMatrix = new ArrayList<>();
-        for (int i = 0; i < Matrix.size(); i++) {
-            sum += Matrix.get(i);
+        for (Double d : Matrix) {
+            sum += d;
         }
-        for (int i = 0; i < Matrix.size(); i++) {
-            double matrixValue = Matrix.get(i);
-            double relativValue = matrixValue / sum;
-            normalizedMatrix.add(i, relativValue);
+        for (Double d : Matrix) {
+            double relativValue = d / sum;
+            normalizedMatrix.add(relativValue);
         }
         return normalizedMatrix;
     }
@@ -252,14 +251,17 @@ public class PictureManipulation {
         List<Double> normChaMatrix = normalizeMatrix(changingMatrix);
         List<Double> percentageValues = new ArrayList<>();
         double sumOfpercentageValues = 0;
-        double totalPercentage;
+        double totalPercentage;        
+        // was wenn x=0? lösung finden
         for (int i = 0; i < normChaMatrix.size(); i++) {
             double x = normRefMatrix.get(i);
             double y = normChaMatrix.get(i);
+            // empirischer korrelationkoeffizient
             double percentage;
             if (x > y) {
                 percentage = y / x;
                 percentageValues.add(i, percentage);
+            //falsch! 140% /= 60%
             } else if (x < y) {
                 double temp = y / x;
                 percentage = Math.abs(temp - 2);
@@ -268,8 +270,8 @@ public class PictureManipulation {
                 percentageValues.add(i, 1.0);
             }
         }
-        for (int i = 0; i < percentageValues.size(); i++) {
-            sumOfpercentageValues += percentageValues.get(i);
+        for (Double d : percentageValues) {
+            sumOfpercentageValues += d;
         }
         totalPercentage = (sumOfpercentageValues / percentageValues.size());
         System.out.println(totalPercentage);
@@ -287,8 +289,8 @@ public class PictureManipulation {
     public static double totalVertHorzPct(List<Double> vertHorzPctValues) {
         double sumOfPctValues = 0;
         double totalPercentage;
-        for (int i = 0; i < vertHorzPctValues.size(); i++) {
-            sumOfPctValues += vertHorzPctValues.get(i);
+        for (Double d : vertHorzPctValues) {
+            sumOfPctValues += d;
         }
         totalPercentage = sumOfPctValues / vertHorzPctValues.size();
         return totalPercentage;

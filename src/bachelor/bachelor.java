@@ -53,6 +53,7 @@ public class bachelor extends Application {
         System.out.println("refMatrix: " + test);
         System.out.println("chaMatrix: " + test1);
         PictureManipulation.alignMatrices(test, test1);
+        System.out.println("blub");
 
     }
 
