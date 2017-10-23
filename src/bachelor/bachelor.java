@@ -5,7 +5,8 @@
  */
 package bachelor;
 
-import bachelor.util.MyPicture;
+import bachelor.util.NewPicture;
+import bachelor.util.PictureTransformation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -53,23 +54,24 @@ public class bachelor extends Application {
 //        test1.add(0.0);
 //        System.out.println("refMatrix: " + test);
 //        System.out.println("chaMatrix: " + test1);
-        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
+        File[] ogFiles = new File("C:\\Users\\wusch\\Desktop\\test\\ganze_bilder\\").listFiles();
 
-        List<MyPicture> listOfPictures = new ArrayList<MyPicture>();
+        List<NewPicture> listOfPictures = new ArrayList<NewPicture>();
         for (File f : ogFiles) {
-            MyPicture newPicture = new MyPicture(f);
-            newPicture.createCroppedImage(0, 200, 2599, 150);
+            PictureTransformation transformedPic = new PictureTransformation(f);
+            transformedPic.createCroppedImage(0, 150, 2599, 200);
 //            System.out.println("blub");
         }
-        File[] newFiles = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\").listFiles();
+        File[] newFiles = new File("C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\").listFiles();
         for (File f : newFiles) {
-            MyPicture newPicture = new MyPicture(f);
-            listOfPictures.add(newPicture);
+            NewPicture newPic = new NewPicture(f);
+            listOfPictures.add(newPic);
         }
-//        for (int i = 0; i < listOfPictures.size(); i++) {
-//            System.out.println("Vergleich nr. " + i + ": " + listOfPictures.get(1).compareTo(listOfPictures.get(3)));
-//        }
-        System.out.println("Vergleich nr. : " + listOfPictures.get(1).compareTo(listOfPictures.get(3)));
+        for (int i = 0; i < listOfPictures.size(); i++) {
+            System.out.println("Vergleich nr. " + i + ": " + listOfPictures.get(1).compareTo(listOfPictures.get(i)));
+            System.out.println(" ");
+        }
+//        System.out.println("Vergleich nr. : " + listOfPictures.get(1).compareTo(listOfPictures.get(3)));
 
 //    MyPicture newP = new MyPicture(files[1]);
 //    List<Double> test = newP.getHorizontalMatrix();

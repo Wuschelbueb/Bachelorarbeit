@@ -23,11 +23,11 @@ import javax.imageio.ImageIO;
  *
  * @author David
  */
-public class MyPicture {
+public class NewPicture {
 
     private File ogFile = null;
     private File newFile = null;
-    private Image rawImage = null;
+    private Image transformedImage = null;
     private WritableImage croppedImage = null;
     private PixelReader pixelReader = null;
     private List<Double> horizontalMatrix = null;
@@ -39,95 +39,13 @@ public class MyPicture {
      * @param file
      * @throws FileNotFoundException
      */
-    public MyPicture(File file) throws FileNotFoundException {
+    public NewPicture(File file) throws FileNotFoundException {
         this.ogFile = file;
-        this.rawImage = new Image(new FileInputStream(getURL()));
+        this.transformedImage = new Image(new FileInputStream(getURL()));
     }
 
     private String getURL() {
         return ogFile.getAbsolutePath();
-    }
-
-    private String setURL() {
-        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
-        return setURL;
-    }
-
-    private String getName() {
-        return ogFile.getName();
-    }
-
-    /**
-     * crops the original image to a new one. we do that with javaFX commands it
-     * is important, that you use the starting parameters to set the rectangle.
-     * because the rectangle defines the size of the new image.
-     *
-     * @param xStartingPostion
-     * @param xDistance
-     * @param yStartingPostion
-     * @param yDistance
-     * @throws FileNotFoundException
-     */
-    public void createCroppedImage(int xStartingPostion, int yStartingPostion, int xDistance, int yDistance) throws FileNotFoundException {
-        //Reading color from the loaded image 
-        this.pixelReader = rawImage.getPixelReader();
-
-        //crops image
-        this.croppedImage = new WritableImage(pixelReader, xStartingPostion, yStartingPostion, xDistance, yDistance);
-        createBinaryPicture();
-    }
-
-    /**
-     * creates a binary picture and saves it as png.
-     *
-     * @throws FileNotFoundException
-     */
-    private void createBinaryPicture() throws FileNotFoundException {
-
-        pixelReader = croppedImage.getPixelReader();
-
-        //This method returns a PixelWriter that provides access to write the pixels of the image.
-        PixelWriter writer = croppedImage.getPixelWriter();
-
-        //threshold farbe, decides if pixel are black or white
-        Color threshold = Color.rgb(102, 102, 102);
-
-        //checks every pixel in the image and compares them to the threshold
-        for (int y = 0; y < croppedImage.getHeight(); y++) {
-            for (int x = 0; x < croppedImage.getWidth(); x++) {
-                Color color = pixelReader.getColor(x, y);
-                if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
-                    writer.setColor(x, y, Color.WHITE);
-                } else {
-                    writer.setColor(x, y, Color.BLACK);
-                }
-            }
-        }
-        this.newFile = new File(setURL());
-        if (checkForCroppedImage() == false) {
-            try {
-                ImageIO.write(SwingFXUtils.fromFXImage(croppedImage, null), "png", newFile);
-                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
-            } catch (IOException ex) {
-            }
-        }
-
-    }
-
-    /**
-     * checks if such a file already exists.
-     *
-     * @return
-     * @throws FileNotFoundException
-     */
-    private boolean checkForCroppedImage() throws FileNotFoundException {
-        if (newFile.exists() && !newFile.isDirectory()) {
-//            System.out.println(true);
-            return true;
-        } else {
-            System.out.println(false);
-            return false;
-        }
     }
 
     /**
@@ -136,15 +54,14 @@ public class MyPicture {
      * @return
      * @throws FileNotFoundException
      */
-    public void calculateHorizontalMatrix()  {
-//        Image modifiedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + newImage));
+    public void calculateVerticalMatrix()  {
         List<Double> tempHorzMatrix = new ArrayList<>();
         double counter = 0;
-        int heightOfImage = (int) rawImage.getHeight();
-        int widthOfImage = (int) rawImage.getWidth();
+        int heightOfImage = (int) transformedImage.getHeight();
+        int widthOfImage = (int) transformedImage.getWidth();
         for (int y = 0; y < heightOfImage; y++) {
             for (int x = 0; x < widthOfImage; x++) {
-                Color croppedImagePixelColor = rawImage.getPixelReader().getColor(x, y);
+                Color croppedImagePixelColor = transformedImage.getPixelReader().getColor(x, y);
                 if (croppedImagePixelColor.equals(Color.BLACK)) {
                     counter++;
                 }
@@ -155,10 +72,9 @@ public class MyPicture {
         horizontalMatrix = normalizeMatrix(tempHorzMatrix);
     }
 
-    public List<Double> getHorizontalMatrix() throws FileNotFoundException {
-//        Image modifiedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + newImage));
+    public List<Double> getVerticalMatrix() {
         if (horizontalMatrix == null) {
-            calculateHorizontalMatrix();
+            calculateVerticalMatrix();
         }
         return horizontalMatrix;
     }
@@ -169,15 +85,14 @@ public class MyPicture {
      * @return
      * @throws FileNotFoundException
      */
-    public List<Double> getVerticalMatrix() throws FileNotFoundException {
-//        Image modifiedImage = new Image(new FileInputStream("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + newImage.getName()));
+    public void calculateHorizontalMatrix() {
         List<Double> tempHorzMatrix = new ArrayList<>();
         double counter = 0;
-        int heightOfImage = (int) rawImage.getHeight();
-        int widthOfImage = (int) rawImage.getWidth();
+        int heightOfImage = (int) transformedImage.getHeight();
+        int widthOfImage = (int) transformedImage.getWidth();
         for (int y = 0; y < widthOfImage; y++) {
             for (int x = 0; x < heightOfImage; x++) {
-                Color croppedImagePixelColor = rawImage.getPixelReader().getColor(y, x);
+                Color croppedImagePixelColor = transformedImage.getPixelReader().getColor(y, x);
                 if (croppedImagePixelColor.equals(Color.BLACK)) {
                     counter++;
                 }
@@ -185,7 +100,14 @@ public class MyPicture {
             tempHorzMatrix.add(counter);
             counter = 0;
         }
-        return normalizeMatrix(tempHorzMatrix);
+        verticalMatrix = normalizeMatrix(tempHorzMatrix);
+    }
+    
+    public List<Double> getHorzinontalMatrix() {
+        if (verticalMatrix == null) {
+            calculateHorizontalMatrix();
+        }
+        return verticalMatrix;
     }
 
     /**
@@ -210,11 +132,9 @@ public class MyPicture {
         return normalizedMatrix;
     }
 
-    public List<Double> compareTo(MyPicture theOtherPicture) throws FileNotFoundException {
-        this.horizontalMatrix = getHorizontalMatrix();
-        theOtherPicture.horizontalMatrix = theOtherPicture.getHorizontalMatrix();
+    public List<Double> compareTo(NewPicture theOtherPicture) throws FileNotFoundException {
         double vert = alignAndCompare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
-        double horz = alignAndCompare(horizontalMatrix, theOtherPicture.horizontalMatrix);
+        double horz = alignAndCompare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
         List<Double> totalSimilarity = new ArrayList<>();
         totalSimilarity.add(vert);
         totalSimilarity.add(horz);
@@ -232,8 +152,9 @@ public class MyPicture {
      *
      * @param refMatrix
      * @param changingMatrix
+     * @return 
      */
-    public static double alignAndCompare(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
+    public static double alignAndCompare(List<Double> refMatrix, List<Double> changingMatrix) {
         int refSize = refMatrix.size();
         int chaSize = changingMatrix.size();
         double refMax, chaMax;
@@ -255,11 +176,11 @@ public class MyPicture {
             }
         }
         if (refMaxPos == chaMaxPos) {
-//            System.out.println("same");
             return compareCorrelation(refMatrix, changingMatrix);
         } else if (refMaxPos > chaMaxPos) {
             int difference = refMaxPos - chaMaxPos;
-            System.out.println("Anzahl PIxel zwischen Maxima (right): " +difference);
+            System.out.println("refMax: "+refMaxPos+" chaMax: "+chaMaxPos);
+            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt right shift): " +difference);
             List<Double> newChangingMatrix = new ArrayList<>();
             for (int i = 0; i < difference; i++) {
                 newChangingMatrix.add(i, 0.0);
@@ -267,12 +188,11 @@ public class MyPicture {
             for (int i = 0; i < chaSize - difference; i++) {
                 newChangingMatrix.add(i + difference, changingMatrix.get(i));
             }
-//            System.out.println("right shit: "+newChangingMatrix);
             return compareCorrelation(refMatrix, newChangingMatrix);
         } else {
             int difference = chaMaxPos - refMaxPos;
-            
-            System.out.println("Anzahl PIxel zwischen Maxima (left): " +difference);
+            System.out.println("refMax: "+refMaxPos+" chaMax: "+chaMaxPos);
+            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt left shift): " +difference);
             List<Double> newChangingMatrix = new ArrayList<>();
             for (int i = difference; i < chaSize; i++) {
                 newChangingMatrix.add(i - difference, changingMatrix.get(i));
@@ -280,7 +200,6 @@ public class MyPicture {
             for (int i = chaSize - difference; i < chaSize; i++) {
                 newChangingMatrix.add(i, 0.0);
             }
-//            System.out.println("left shift: "+newChangingMatrix);
             return compareCorrelation(refMatrix, newChangingMatrix);
         }
     }
@@ -295,7 +214,7 @@ public class MyPicture {
      * @return
      * @throws FileNotFoundException
      */
-    private static double compareCorrelation(List<Double> refMatrix, List<Double> changingMatrix) throws FileNotFoundException {
+    private static double compareCorrelation(List<Double> refMatrix, List<Double> changingMatrix) {
         double sumOfRef = 0;
         double sumOfCha = 0;
         double sizeOfMatrix = refMatrix.size();
