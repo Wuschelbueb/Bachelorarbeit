@@ -5,10 +5,12 @@
  */
 package bachelor;
 
-import bachelor.util.NewPicture;
-import bachelor.util.PictureTransformation;
+import bachelor.util.DatabaseOperation;
+import bachelor.util.DatabaseCreation;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -18,7 +20,7 @@ import javafx.stage.Stage;
  *
  * @author David
  */
-public class bachelor extends Application {
+public class main extends Application {
 
     /**
      * @param args the command line arguments
@@ -54,22 +56,26 @@ public class bachelor extends Application {
 //        test1.add(0.0);
 //        System.out.println("refMatrix: " + test);
 //        System.out.println("chaMatrix: " + test1);
+
+//        PrintStream out = new PrintStream(new FileOutputStream("chisquare.txt"));
+//        System.setOut(out);
         File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
 
-        List<NewPicture> listOfPictures = new ArrayList<>();
+        List<DatabaseOperation> listOfPictures = new ArrayList<>();
         for (File f : ogFiles) {
-            PictureTransformation transformedPic = new PictureTransformation(f);
+            DatabaseCreation transformedPic = new DatabaseCreation(f);
             transformedPic.createCroppedImage(0, 150, 2599, 200);
 //            System.out.println("blub");
         }
         File[] newFiles = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\").listFiles();
         for (File f : newFiles) {
-            NewPicture newPic = new NewPicture(f);
+            DatabaseOperation newPic = new DatabaseOperation(f);
             listOfPictures.add(newPic);
         }
+        System.out.println("Vergleich nr. X: [Vertikal, Horizontal]");
+        System.out.println(" ");
         for (int i = 0; i < listOfPictures.size(); i++) {
             System.out.println("Vergleich nr. " + i + ": " + listOfPictures.get(1).compareTo(listOfPictures.get(i)));
-            System.out.println(" ");
         }
 //        System.out.println("Vergleich nr. : " + listOfPictures.get(1).compareTo(listOfPictures.get(3)));
 

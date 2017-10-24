@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
  *
  * @author David
  */
-public class NewPicture {
+public class DatabaseOperation {
 
     private File ogFile = null;
     private Image transformedImage = null;
@@ -30,7 +30,7 @@ public class NewPicture {
      * @param file
      * @throws FileNotFoundException
      */
-    public NewPicture(File file) throws FileNotFoundException {
+    public DatabaseOperation(File file) throws FileNotFoundException {
         this.ogFile = file;
         this.transformedImage = new Image(new FileInputStream(getURL()));
     }
@@ -43,7 +43,7 @@ public class NewPicture {
      * creates the horizontal matrix of the new Image.
      *
      */
-    public void calculateVerticalMatrix()  {
+    public void calculateVerticalMatrix() {
         List<Double> tempHorzMatrix = new ArrayList<>();
         double counter = 0;
         int heightOfImage = (int) transformedImage.getHeight();
@@ -89,7 +89,7 @@ public class NewPicture {
         }
         verticalMatrix = normalizeMatrix(tempHorzMatrix);
     }
-    
+
     public List<Double> getHorzinontalMatrix() {
         if (verticalMatrix == null) {
             calculateHorizontalMatrix();
@@ -106,7 +106,7 @@ public class NewPicture {
      * @return
      * @throws FileNotFoundException
      */
-    private static List<Double> normalizeMatrix(List<Double> Matrix)  {
+    private static List<Double> normalizeMatrix(List<Double> Matrix) {
         double sum = 0;
         List<Double> normalizedMatrix = new ArrayList<>();
         for (Double d : Matrix) {
@@ -119,7 +119,7 @@ public class NewPicture {
         return normalizedMatrix;
     }
 
-    public List<Double> compareTo(NewPicture theOtherPicture) throws FileNotFoundException {
+    public List<Double> compareTo(DatabaseOperation theOtherPicture) throws FileNotFoundException {
         double vert = alignAndCompare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
         double horz = alignAndCompare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
         List<Double> totalSimilarity = new ArrayList<>();
@@ -139,7 +139,7 @@ public class NewPicture {
      *
      * @param refMatrix
      * @param changingMatrix
-     * @return 
+     * @return
      */
     public static double alignAndCompare(List<Double> refMatrix, List<Double> changingMatrix) {
         int refSize = refMatrix.size();
@@ -163,11 +163,11 @@ public class NewPicture {
             }
         }
         if (refMaxPos == chaMaxPos) {
-            return compareCorrelation(refMatrix, changingMatrix);
+            return chiSquareComparison(refMatrix, changingMatrix);
         } else if (refMaxPos > chaMaxPos) {
             int difference = refMaxPos - chaMaxPos;
-            System.out.println("refMax: "+refMaxPos+" chaMax: "+chaMaxPos);
-            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt right shift): " +difference);
+//            System.out.println("refMax: " + refMaxPos + " chaMax: " + chaMaxPos);
+//            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt right shift): " + difference);
             List<Double> newChangingMatrix = new ArrayList<>();
             for (int i = 0; i < difference; i++) {
                 newChangingMatrix.add(i, 0.0);
@@ -175,11 +175,11 @@ public class NewPicture {
             for (int i = 0; i < chaSize - difference; i++) {
                 newChangingMatrix.add(i + difference, changingMatrix.get(i));
             }
-            return compareCorrelation(refMatrix, newChangingMatrix);
+            return chiSquareComparison(refMatrix, newChangingMatrix);
         } else {
             int difference = chaMaxPos - refMaxPos;
-            System.out.println("refMax: "+refMaxPos+" chaMax: "+chaMaxPos);
-            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt left shift): " +difference);
+//            System.out.println("refMax: " + refMaxPos + " chaMax: " + chaMaxPos);
+//            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt left shift): " + difference);
             List<Double> newChangingMatrix = new ArrayList<>();
             for (int i = difference; i < chaSize; i++) {
                 newChangingMatrix.add(i - difference, changingMatrix.get(i));
@@ -187,7 +187,7 @@ public class NewPicture {
             for (int i = chaSize - difference; i < chaSize; i++) {
                 newChangingMatrix.add(i, 0.0);
             }
-            return compareCorrelation(refMatrix, newChangingMatrix);
+            return chiSquareComparison(refMatrix, newChangingMatrix);
         }
     }
 
@@ -228,6 +228,17 @@ public class NewPicture {
         double correlationDenominator = Math.sqrt(tempRef * tempCha);
         double correlation = correlationNumerator / correlationDenominator;
         return correlation;
+    }
+
+    private static double chiSquareComparison(List<Double> refMatrix, List<Double> changingMatrix) {
+        double sizeOfMatrix = refMatrix.size();
+        double chiSquare = 0;
+        for (int i = 0; i < sizeOfMatrix; i++) {
+            double numerator = Math.pow((refMatrix.get(i) - changingMatrix.get(i)), 2);
+            double denominator = refMatrix.get(i) + changingMatrix.get(i);
+            chiSquare += (denominator !=0) ? (numerator / denominator) : 0;
+        }
+        return chiSquare;
     }
 
     /**

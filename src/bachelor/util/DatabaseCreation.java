@@ -21,7 +21,7 @@ import javax.imageio.ImageIO;
  *
  * @author wusch
  */
-public class PictureTransformation {
+public class DatabaseCreation {
     private File ogFile = null;
     private File newFile = null;
     private Image rawImage = null;
@@ -34,7 +34,7 @@ public class PictureTransformation {
      * @param file
      * @throws FileNotFoundException
      */
-    public PictureTransformation(File file) throws FileNotFoundException {
+    public DatabaseCreation(File file) throws FileNotFoundException {
         this.ogFile = file;
         this.rawImage = new Image(new FileInputStream(getURL()));
     }
