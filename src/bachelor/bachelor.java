@@ -54,15 +54,15 @@ public class bachelor extends Application {
 //        test1.add(0.0);
 //        System.out.println("refMatrix: " + test);
 //        System.out.println("chaMatrix: " + test1);
-        File[] ogFiles = new File("C:\\Users\\wusch\\Desktop\\test\\ganze_bilder\\").listFiles();
+        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
 
-        List<NewPicture> listOfPictures = new ArrayList<NewPicture>();
+        List<NewPicture> listOfPictures = new ArrayList<>();
         for (File f : ogFiles) {
             PictureTransformation transformedPic = new PictureTransformation(f);
             transformedPic.createCroppedImage(0, 150, 2599, 200);
 //            System.out.println("blub");
         }
-        File[] newFiles = new File("C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\").listFiles();
+        File[] newFiles = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\").listFiles();
         for (File f : newFiles) {
             NewPicture newPic = new NewPicture(f);
             listOfPictures.add(newPic);

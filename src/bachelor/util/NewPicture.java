@@ -8,16 +8,10 @@ package bachelor.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -26,10 +20,7 @@ import javax.imageio.ImageIO;
 public class NewPicture {
 
     private File ogFile = null;
-    private File newFile = null;
     private Image transformedImage = null;
-    private WritableImage croppedImage = null;
-    private PixelReader pixelReader = null;
     private List<Double> horizontalMatrix = null;
     private List<Double> verticalMatrix = null;
 
@@ -51,8 +42,6 @@ public class NewPicture {
     /**
      * creates the horizontal matrix of the new Image.
      *
-     * @return
-     * @throws FileNotFoundException
      */
     public void calculateVerticalMatrix()  {
         List<Double> tempHorzMatrix = new ArrayList<>();
@@ -82,8 +71,6 @@ public class NewPicture {
     /**
      * creates the vertical matrix of the new Image.
      *
-     * @return
-     * @throws FileNotFoundException
      */
     public void calculateHorizontalMatrix() {
         List<Double> tempHorzMatrix = new ArrayList<>();

@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -28,8 +27,6 @@ public class PictureTransformation {
     private Image rawImage = null;
     private WritableImage croppedImage = null;
     private PixelReader pixelReader = null;
-    private List<Double> horizontalMatrix = null;
-    private List<Double> verticalMatrix = null;
 
     /**
      * creates an image (with javaFX) of the choosen file.
@@ -47,7 +44,7 @@ public class PictureTransformation {
     }
 
     private String setURL() {
-        String setURL = "C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\" + getName();
+        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
         return setURL;
     }
 
