@@ -39,6 +39,10 @@ public class DatabaseOperation {
     private String getURL() {
         return ogFile.getAbsolutePath();
     }
+    
+    private String getFileName() {
+        return ogFile.getName();
+    }
 
     /**
      * creates the horizontal matrix of the new Image.
@@ -99,9 +103,10 @@ public class DatabaseOperation {
     }
 
     /**
-     * normalizes matrix. easier to compare the graphs with each other now.
-     * because the scale ends always at one. to normalize the matrix you need
-     * divide each element of the list with the sum of all elements.
+     * normalizes matrix. easier to compareWithCorrelationCoeff the graphs with
+     * each other now. because the scale ends always at one. to normalize the
+     * matrix you need divide each element of the list with the sum of all
+     * elements.
      *
      * @param Matrix
      * @return
@@ -121,31 +126,26 @@ public class DatabaseOperation {
     }
 
     public List<String> compareTo(DatabaseOperation theOtherPicture) throws FileNotFoundException {
-        double vert = compare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
-        double horz = compare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
+        double vert = compareWithCorrelationCoeff(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
+        double horz = compareWithCorrelationCoeff(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
         List<String> totalSimilarity = new ArrayList<>();
-//        totalSimilarity.add(vert);
-//        totalSimilarity.add(horz);
-        double test = (vert+horz)/2;
-        String tse = Double.toString(test);
-        totalSimilarity.add(tse);
-        totalSimilarity.add(theOtherPicture.getURL());
+        double similarity = (vert + horz) / 2;
+        String similarityToString = Double.toString(similarity);
+        totalSimilarity.add(similarityToString);
+        totalSimilarity.add(theOtherPicture.getFileName());
         return totalSimilarity;
     }
 
     /**
-     * aligns two matrices with each other. we have an referential matrix, and a
-     * changing matrix. the changing matrix gets aligned with the referential.
-     * first we need to find the max value of both matrices and the position of
-     * this value. as soon as we have found it, we can check if they are already
-     * aligned with each other. if so, go to the compareMatrices() method, else
-     * align them properly.
+     * compares the refMatrix with the chaMatrix. it takes the correlation
+     * coefficient to compare these two matrices. iterates through chaMatrix
+     * until it finds the best fit.
      *
      * @param refMatrix
      * @param changingMatrix
      * @return
      */
-    public static double compare(List<Double> refMatrix, List<Double> changingMatrix) {
+    public static double compareWithCorrelationCoeff(List<Double> refMatrix, List<Double> changingMatrix) {
         int maxMoves = changingMatrix.size() - refMatrix.size();
         List<Double> normRefMatrix = normalizeMatrix(refMatrix);
         //10.0 für chi square und 0.0 für correlation
@@ -156,9 +156,36 @@ public class DatabaseOperation {
                 newChangingMatrix.add(changingMatrix.get(j));
             }
             List<Double> normChaMatrix = normalizeMatrix(newChangingMatrix);
-            double tempResult = compareCorrelation(normRefMatrix, normChaMatrix);
+            double tempResult = correlationCoefficient(normRefMatrix, normChaMatrix);
             // >= für correlation <= für chi square methode
             if (tempResult >= finalResult) {
+                finalResult = tempResult;
+            }
+        }
+        return finalResult;
+    }
+
+    /**
+     * takes refMatrix and changing matrix and compares them with chisquare. it
+     * iterates through the chaMatrix until it finds the best fit for the ref
+     * matrix.
+     *
+     * @param refMatrix
+     * @param changingMatrix
+     * @return
+     */
+    public static double compareWithChiSquare(List<Double> refMatrix, List<Double> changingMatrix) {
+        int maxMoves = changingMatrix.size() - refMatrix.size();
+        List<Double> normRefMatrix = normalizeMatrix(refMatrix);
+        double finalResult = 10.0;
+        for (int i = 0; i <= maxMoves; i++) {
+            List<Double> newChangingMatrix = new ArrayList<>();
+            for (int j = i; j < refMatrix.size() + i; j++) {
+                newChangingMatrix.add(changingMatrix.get(j));
+            }
+            List<Double> normChaMatrix = normalizeMatrix(newChangingMatrix);
+            double tempResult = chiSquareTest(normRefMatrix, normChaMatrix);
+            if (tempResult <= finalResult) {
                 finalResult = tempResult;
             }
         }
@@ -175,7 +202,7 @@ public class DatabaseOperation {
      * @return
      * @throws FileNotFoundException
      */
-    private static double compareCorrelation(List<Double> refMatrix, List<Double> changingMatrix) {
+    private static double correlationCoefficient(List<Double> refMatrix, List<Double> changingMatrix) {
         double sumOfRef = 0;
         double sumOfCha = 0;
         double sizeOfMatrix = refMatrix.size();
@@ -205,13 +232,13 @@ public class DatabaseOperation {
     }
 
     /**
-     * chi square algorithm. needed to compare to matrices with each other.
+     * chi square algorithm. needed to compare matrices with each other.
      *
      * @param refMatrix
      * @param changingMatrix
      * @return
      */
-    private static double chiSquareComparison(List<Double> refMatrix, List<Double> changingMatrix) {
+    private static double chiSquareTest(List<Double> refMatrix, List<Double> changingMatrix) {
         double sizeOfMatrix = refMatrix.size();
         double chiSquare = 0;
         for (int i = 0; i < sizeOfMatrix; i++) {
@@ -220,24 +247,6 @@ public class DatabaseOperation {
             chiSquare += (denominator != 0) ? (numerator / denominator) : 0;
         }
         return chiSquare;
-    }
-
-    /**
-     * Takes the percentages of the horizontal and vertical Results of a picture
-     * and calculates how well the new picture fits with the referential
-     * picture.
-     *
-     * @param vertHorzPctValues
-     * @return
-     */
-    public static double totalVertHorzPct(List<Double> vertHorzPctValues) {
-        double sumOfPctValues = 0;
-        double totalPercentage;
-        for (Double d : vertHorzPctValues) {
-            sumOfPctValues += d;
-        }
-        totalPercentage = sumOfPctValues / vertHorzPctValues.size();
-        return totalPercentage;
     }
 
 }

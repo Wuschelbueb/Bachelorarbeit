@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
 
 /**
  *
- * @author wusch
+ * @author David
  */
 public class DatabaseCreation {
 
