@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -27,17 +26,46 @@ public class main extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws FileNotFoundException {
-//        PrintStream out = new PrintStream(new FileOutputStream("correlation_delta.txt"));
+//        PrintStream fileStream = new PrintStream("test.txt");
+//        System.setOut(fileStream);
+//        File oFile = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\");
+//        MyPicture.cropAndSaveImage(oFile, 0, 0, 0, 0);
+//        File newImage = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\");
+//        List<Integer> ImageToMatrix = MyPicture.getHorizontalMatrix(newImage);
+////        for(List<Integer> k: test){
+//            Graph chart = new Graph(
+//                "Picture",
+//                "bah",ImageToMatrix);
+//        chart.pack();
+//        RefineryUtilities.centerFrameOnScreen(chart);
+//        chart.setVisible(true);
+////        }
+//        List<Double> test = new ArrayList<>();
+//        test.add(0.0);
+//        test.add(2.0);
+//        test.add(8.0);
+//        test.add(5.0);
+//        test.add(3.0);
+//        test.add(0.0);
+//        List<Double> test1 = new ArrayList<>();
+//        test1.add(0.0);
+//        test1.add(2.0);
+//        test1.add(8.0);
+//        test1.add(3.0);
+//        test1.add(6.0);
+//        test1.add(0.0);
+//        System.out.println("refMatrix: " + test);
+//        System.out.println("chaMatrix: " + test1);
+
+//        PrintStream out = new PrintStream(new FileOutputStream("chisquare.txt"));
 //        System.setOut(out);
         File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
-        
-        DatabaseCreation referentialPic = new DatabaseCreation(ogFiles[1]);
-        referentialPic.createReferentialImage(50, 200, 2249, 150);
-        
+
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
         for (File f : ogFiles) {
             DatabaseCreation transformedPic = new DatabaseCreation(f);
-            transformedPic.createComparableImage(50, 250, 2249, 150);
+            transformedPic.createCroppedImage(0, 150, 2599, 200);
+//            System.out.println("blub");
         }
         File[] newFiles = new File("C:\\Users\\David\\Desktop\\test\\halbe_bilder\\").listFiles();
         for (File f : newFiles) {
@@ -47,11 +75,14 @@ public class main extends Application {
         System.out.println("Vergleich nr. X: [Vertikal, Horizontal]");
         System.out.println(" ");
         for (int i = 0; i < listOfPictures.size(); i++) {
-//            results.add(listOfPictures.get(1).compareTo(listOfPictures.get(i)));
-            System.out.println("Vergleich nr. " + (i+1) + ": " + listOfPictures.get(1).compareTo(listOfPictures.get(i)));
+            System.out.println("Vergleich nr. " + i + ": " + listOfPictures.get(1).compareTo(listOfPictures.get(i)));
         }
+//        System.out.println("Vergleich nr. : " + listOfPictures.get(1).compareTo(listOfPictures.get(3)));
+
+//    MyPicture newP = new MyPicture(files[1]);
+//    List<Double> test = newP.getHorizontalMatrix();
     }
-    
+
     /**
      * creates a list of all files in a directory.
      *
