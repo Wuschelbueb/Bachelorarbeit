@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -58,7 +59,7 @@ public class DatabaseOperation {
             tempHorzMatrix.add(counter);
             counter = 0;
         }
-        horizontalMatrix = normalizeMatrix(tempHorzMatrix);
+        horizontalMatrix = tempHorzMatrix;
     }
 
     public List<Double> getVerticalMatrix() {
@@ -73,7 +74,7 @@ public class DatabaseOperation {
      *
      */
     public void calculateHorizontalMatrix() {
-        List<Double> tempHorzMatrix = new ArrayList<>();
+        List<Double> tempVertMatrix = new ArrayList<>();
         double counter = 0;
         int heightOfImage = (int) transformedImage.getHeight();
         int widthOfImage = (int) transformedImage.getWidth();
@@ -84,10 +85,10 @@ public class DatabaseOperation {
                     counter++;
                 }
             }
-            tempHorzMatrix.add(counter);
+            tempVertMatrix.add(counter);
             counter = 0;
         }
-        verticalMatrix = normalizeMatrix(tempHorzMatrix);
+        verticalMatrix = tempVertMatrix;
     }
 
     public List<Double> getHorzinontalMatrix() {
@@ -119,13 +120,16 @@ public class DatabaseOperation {
         return normalizedMatrix;
     }
 
-    public List<Double> compareTo(DatabaseOperation theOtherPicture) throws FileNotFoundException {
-        double vert = alignAndCompare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
-        double horz = alignAndCompare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
-        List<Double> totalSimilarity = new ArrayList<>();
-        totalSimilarity.add(vert);
-        totalSimilarity.add(horz);
-//        double totalSimilarity = (vert+horz)/2;
+    public List<String> compareTo(DatabaseOperation theOtherPicture) throws FileNotFoundException {
+        double vert = compare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
+        double horz = compare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
+        List<String> totalSimilarity = new ArrayList<>();
+//        totalSimilarity.add(vert);
+//        totalSimilarity.add(horz);
+        double test = (vert+horz)/2;
+        String tse = Double.toString(test);
+        totalSimilarity.add(tse);
+        totalSimilarity.add(theOtherPicture.getURL());
         return totalSimilarity;
     }
 
@@ -141,54 +145,24 @@ public class DatabaseOperation {
      * @param changingMatrix
      * @return
      */
-    public static double alignAndCompare(List<Double> refMatrix, List<Double> changingMatrix) {
-        int refSize = refMatrix.size();
-        int chaSize = changingMatrix.size();
-        double refMax, chaMax;
-        int refMaxPos, chaMaxPos;
-        chaMax = refMax = Integer.MIN_VALUE;
-        chaMaxPos = refMaxPos = -1;
-        for (int i = 0; i < refSize; i++) {
-            double value = refMatrix.get(i);
-            if (value > refMax) {
-                refMax = value;
-                refMaxPos = i;
-            }
-        }
-        for (int i = 0; i < chaSize; i++) {
-            double value = changingMatrix.get(i);
-            if (value > chaMax) {
-                chaMax = value;
-                chaMaxPos = i;
-            }
-        }
-        if (refMaxPos == chaMaxPos) {
-            return chiSquareComparison(refMatrix, changingMatrix);
-        } else if (refMaxPos > chaMaxPos) {
-            int difference = refMaxPos - chaMaxPos;
-//            System.out.println("refMax: " + refMaxPos + " chaMax: " + chaMaxPos);
-//            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt right shift): " + difference);
+    public static double compare(List<Double> refMatrix, List<Double> changingMatrix) {
+        int maxMoves = changingMatrix.size() - refMatrix.size();
+        List<Double> normRefMatrix = normalizeMatrix(refMatrix);
+        //10.0 für chi square und 0.0 für correlation
+        double finalResult = 0.0;
+        for (int i = 0; i <= maxMoves; i++) {
             List<Double> newChangingMatrix = new ArrayList<>();
-            for (int i = 0; i < difference; i++) {
-                newChangingMatrix.add(i, 0.0);
+            for (int j = i; j < refMatrix.size() + i; j++) {
+                newChangingMatrix.add(changingMatrix.get(j));
             }
-            for (int i = 0; i < chaSize - difference; i++) {
-                newChangingMatrix.add(i + difference, changingMatrix.get(i));
+            List<Double> normChaMatrix = normalizeMatrix(newChangingMatrix);
+            double tempResult = compareCorrelation(normRefMatrix, normChaMatrix);
+            // >= für correlation <= für chi square methode
+            if (tempResult >= finalResult) {
+                finalResult = tempResult;
             }
-            return chiSquareComparison(refMatrix, newChangingMatrix);
-        } else {
-            int difference = chaMaxPos - refMaxPos;
-//            System.out.println("refMax: " + refMaxPos + " chaMax: " + chaMaxPos);
-//            System.out.println("Anzahl Pixel zwischen Maxima (erzeugt left shift): " + difference);
-            List<Double> newChangingMatrix = new ArrayList<>();
-            for (int i = difference; i < chaSize; i++) {
-                newChangingMatrix.add(i - difference, changingMatrix.get(i));
-            }
-            for (int i = chaSize - difference; i < chaSize; i++) {
-                newChangingMatrix.add(i, 0.0);
-            }
-            return chiSquareComparison(refMatrix, newChangingMatrix);
         }
+        return finalResult;
     }
 
     /**
@@ -230,13 +204,20 @@ public class DatabaseOperation {
         return correlation;
     }
 
+    /**
+     * chi square algorithm. needed to compare to matrices with each other.
+     *
+     * @param refMatrix
+     * @param changingMatrix
+     * @return
+     */
     private static double chiSquareComparison(List<Double> refMatrix, List<Double> changingMatrix) {
         double sizeOfMatrix = refMatrix.size();
         double chiSquare = 0;
         for (int i = 0; i < sizeOfMatrix; i++) {
             double numerator = Math.pow((refMatrix.get(i) - changingMatrix.get(i)), 2);
             double denominator = refMatrix.get(i) + changingMatrix.get(i);
-            chiSquare += (denominator !=0) ? (numerator / denominator) : 0;
+            chiSquare += (denominator != 0) ? (numerator / denominator) : 0;
         }
         return chiSquare;
     }
