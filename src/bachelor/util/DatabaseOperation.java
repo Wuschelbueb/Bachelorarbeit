@@ -5,11 +5,8 @@
  */
 package bachelor.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -20,7 +17,7 @@ import javafx.scene.paint.Color;
  */
 public class DatabaseOperation {
 
-    private File ogFile = null;
+    private String FileName = null;
     private Image transformedImage = null;
     private List<Double> horizontalMatrix = null;
     private List<Double> verticalMatrix = null;
@@ -28,20 +25,15 @@ public class DatabaseOperation {
     /**
      * creates an image (with javaFX) of the choosen file.
      *
-     * @param file
-     * @throws FileNotFoundException
+     * @param image
      */
-    public DatabaseOperation(File file) throws FileNotFoundException {
-        this.ogFile = file;
-        this.transformedImage = new Image(new FileInputStream(getURL()));
+    public DatabaseOperation(WrapperImageName image) {
+        this.FileName = image.getName();
+        this.transformedImage = image.getImage();
     }
 
-    private String getURL() {
-        return ogFile.getAbsolutePath();
-    }
-    
     private String getFileName() {
-        return ogFile.getName();
+        return FileName;
     }
 
     /**
@@ -125,15 +117,19 @@ public class DatabaseOperation {
         return normalizedMatrix;
     }
 
-    public List<String> compareTo(DatabaseOperation theOtherPicture) throws FileNotFoundException {
-        double vert = compareWithCorrelationCoeff(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
-        double horz = compareWithCorrelationCoeff(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
-        List<String> totalSimilarity = new ArrayList<>();
-        double similarity = (vert + horz) / 2;
-        String similarityToString = Double.toString(similarity);
-        totalSimilarity.add(similarityToString);
-        totalSimilarity.add(theOtherPicture.getFileName());
-        return totalSimilarity;
+    /**
+     * calls the comparing methods and returns the results (string & value).
+     *
+     * @param theOtherPicture
+     * @return
+     */
+    public WrapperSimilarityName compareTo(DatabaseOperation theOtherPicture) {
+        WrapperSimilarityName results = new WrapperSimilarityName();
+        double vert = compareWithChiSquare(getVerticalMatrix(), theOtherPicture.getVerticalMatrix());
+        double horz = compareWithChiSquare(getHorzinontalMatrix(), theOtherPicture.getHorzinontalMatrix());
+        results.setFileName(theOtherPicture.getFileName());
+        results.setSimilarityValue((vert + horz) / 2);
+        return results;
     }
 
     /**

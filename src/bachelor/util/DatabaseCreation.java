@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 public class DatabaseCreation {
 
     private File ogFile = null;
-    private File newFile = null;
+//    private File newFile = null;
     private Image rawImage = null;
     private WritableImage croppedImage = null;
     private PixelReader pixelReader = null;
@@ -44,13 +44,30 @@ public class DatabaseCreation {
         return ogFile.getAbsolutePath();
     }
 
-    private String setURL() {
-        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
-        return setURL;
-    }
-
+//    private String setURL() {
+//        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
+//        return setURL;
+//    }
     private String getName() {
         return ogFile.getName();
+    }
+
+    /**
+     * crops the original image to a new one. we do that with javaFX commands it
+     * is important, that you use the starting parameters to set the rectangle.
+     * because the rectangle defines the size of the new image.
+     *
+     * @param xStartingPosition
+     * @param xDistance
+     * @param yStartingPosition
+     * @param yDistance
+     * @return
+     * @throws FileNotFoundException
+     */
+    public WrapperImageName createReferentialImage(int xStartingPosition, int yStartingPosition, int xDistance, int yDistance) throws FileNotFoundException {
+        this.pixelReader = rawImage.getPixelReader();
+        this.croppedImage = new WritableImage(pixelReader, xStartingPosition, yStartingPosition, xDistance, yDistance);
+        return createBinaryPicture();
     }
 
     /**
@@ -58,13 +75,14 @@ public class DatabaseCreation {
      * than the referential image. with the bigger size we make sure that the
      * title is on the image
      *
-     * @param xStartingPostion
+     * @param xStartingPosition
      * @param xDistance
-     * @param yStartingPostion
+     * @param yStartingPosition
      * @param yDistance
+     * @return
      * @throws FileNotFoundException
      */
-    public void createComparableImage(int xStartingPostion, int yStartingPostion, int xDistance, int yDistance) throws FileNotFoundException {
+    public WrapperImageName createComparableImage(int xStartingPosition, int yStartingPosition, int xDistance, int yDistance) throws FileNotFoundException {
 
         //Reading color from the loaded image 
         this.pixelReader = rawImage.getPixelReader();
@@ -73,7 +91,7 @@ public class DatabaseCreation {
         int ImageHeight = (int) rawImage.getHeight();
         int newXDistance;
         int newYDistance;
-        
+
         //used to scale the new picture.      
         if (xDistance <= 100) {
             newXDistance = (int) (xDistance * 3);
@@ -108,18 +126,18 @@ public class DatabaseCreation {
         }
 
         //conditions to set the new startingPositions
-        if (xStartingPostion > (newXDistance / 2) && yStartingPostion <= (newYDistance / 2)) {
-            xStartingPostion -= (int) (newXDistance / 2);
-            yStartingPostion = 0;
-        } else if (xStartingPostion <= (newXDistance / 2) && yStartingPostion > (newYDistance / 2)) {
-            xStartingPostion = 0;
-            yStartingPostion -= (int) (newYDistance / 2);
-        } else if (xStartingPostion <= (newXDistance / 2) && yStartingPostion <= (newYDistance / 2)) {
-            xStartingPostion = 0;
-            yStartingPostion = 0;
-        } else if (xStartingPostion > (newXDistance / 2) && yStartingPostion > (newYDistance / 2)) {
-            xStartingPostion -= (int) (newXDistance / 2);
-            yStartingPostion -= (int) (newYDistance / 2);
+        if (xStartingPosition > (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
+            xStartingPosition -= (int) (newXDistance / 2);
+            yStartingPosition = 0;
+        } else if (xStartingPosition <= (newXDistance / 2) && yStartingPosition > (newYDistance / 2)) {
+            xStartingPosition = 0;
+            yStartingPosition -= (int) (newYDistance / 2);
+        } else if (xStartingPosition <= (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
+            xStartingPosition = 0;
+            yStartingPosition = 0;
+        } else if (xStartingPosition > (newXDistance / 2) && yStartingPosition > (newYDistance / 2)) {
+            xStartingPosition -= (int) (newXDistance / 2);
+            yStartingPosition -= (int) (newYDistance / 2);
         }
 
         //conditions to set the new distances. like that the picture gets bigger
@@ -137,25 +155,8 @@ public class DatabaseCreation {
             yDistance += newYDistance;
         }
         //crops image
-        this.croppedImage = new WritableImage(pixelReader, xStartingPostion, yStartingPostion, xDistance, yDistance);
-        createBinaryPicture();
-    }
-
-    /**
-     * crops the original image to a new one. we do that with javaFX commands it
-     * is important, that you use the starting parameters to set the rectangle.
-     * because the rectangle defines the size of the new image.
-     *
-     * @param xStartingPostion
-     * @param xDistance
-     * @param yStartingPostion
-     * @param yDistance
-     * @throws FileNotFoundException
-     */
-    public void createReferentialImage(int xStartingPostion, int yStartingPostion, int xDistance, int yDistance) throws FileNotFoundException {
-        this.pixelReader = rawImage.getPixelReader();
-        this.croppedImage = new WritableImage(pixelReader, xStartingPostion, yStartingPostion, xDistance, yDistance);
-        createBinaryPicture();
+        this.croppedImage = new WritableImage(pixelReader, xStartingPosition, yStartingPosition, xDistance, yDistance);
+        return createBinaryPicture();
     }
 
     /**
@@ -163,36 +164,40 @@ public class DatabaseCreation {
      *
      * @throws FileNotFoundException
      */
-    private void createBinaryPicture() throws FileNotFoundException {
+    private WrapperImageName createBinaryPicture() throws FileNotFoundException {
 
         pixelReader = croppedImage.getPixelReader();
+        WrapperImageName wrapper = new WrapperImageName();
 
         //This method returns a PixelWriter that provides access to write the pixels of the image.
-        PixelWriter writer = croppedImage.getPixelWriter();
+        PixelWriter binaryPicture = croppedImage.getPixelWriter();
 
         //threshold farbe, decides if pixel are black or white
-        Color threshold = Color.rgb(102, 102, 102);
+        Color threshold = Color.rgb(150, 150, 150);
 
         //checks every pixel in the image and compares them to the threshold
         for (int y = 0; y < croppedImage.getHeight(); y++) {
             for (int x = 0; x < croppedImage.getWidth(); x++) {
                 Color color = pixelReader.getColor(x, y);
                 if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
-                    writer.setColor(x, y, Color.WHITE);
+                    binaryPicture.setColor(x, y, Color.WHITE);
                 } else {
-                    writer.setColor(x, y, Color.BLACK);
+                    binaryPicture.setColor(x, y, Color.BLACK);
                 }
             }
         }
-        this.newFile = new File(setURL());
-        if (checkForCroppedImage() == false) {
-            try {
-                ImageIO.write(SwingFXUtils.fromFXImage(croppedImage, null), "png", newFile);
-                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
-            } catch (IOException ex) {
-            }
-        }
-
+        //used to create a file
+//        this.newFile = new File(setURL());
+//        if (checkForCroppedImage() == false) {
+//            try {
+//                ImageIO.write(SwingFXUtils.fromFXImage(croppedImage, null), "png", newFile);
+//                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
+//            } catch (IOException ex) {
+//            }
+//        }
+        wrapper.setFileName(getName());
+        wrapper.setImage(croppedImage);
+        return wrapper;
     }
 
     /**
@@ -201,11 +206,11 @@ public class DatabaseCreation {
      * @return
      * @throws FileNotFoundException
      */
-    private boolean checkForCroppedImage() throws FileNotFoundException {
-        if (newFile.exists() && !newFile.isDirectory()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    private boolean checkForCroppedImage() throws FileNotFoundException {
+//        if (newFile.exists() && !newFile.isDirectory()) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 }
