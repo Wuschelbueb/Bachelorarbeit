@@ -33,14 +33,16 @@ import javafx.stage.Stage;
  * @author David
  */
 public class main extends Application {
+    
+    private List<WrapperImageName> imageList = null;
 
     /**
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-        PrintStream out = new PrintStream(new FileOutputStream("correlation_delta.txt"));
-        System.setOut(out);
+//        PrintStream out = new PrintStream(new FileOutputStream("correlation_delta.txt"));
+//        System.setOut(out);
 
         File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
@@ -70,8 +72,9 @@ public class main extends Application {
         for (WrapperSimilarityName str : listWithResults) {
             System.out.println(str);
         }
-
+        
         System.out.println("hoi");
+//        launch(args);
     }
 
     /**
@@ -94,11 +97,7 @@ public class main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-//        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder\\").listFiles();
-//        List<Image> imageList = new ArrayList<>();
-//        DatabaseCreation referentialPic = new DatabaseCreation(ogFiles[4]);
-//        imageList.add(referentialPic.createReferentialImage(50, 200, 2249, 150));
-//        ImageView test = new ImageView(imageList.get(0));
+//        ImageView test = new ImageView(imageList.get(0).getImage());
 //        test.setFitWidth(1000);
 //        test.setPreserveRatio(true);
 //        Group root = new Group(test);

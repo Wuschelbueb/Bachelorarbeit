@@ -5,17 +5,24 @@
  */
 package bachelor.util;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
+import javax.swing.GrayFilter;
 
 /**
  *
@@ -171,6 +178,13 @@ public class DatabaseCreation {
 
         //This method returns a PixelWriter that provides access to write the pixels of the image.
         PixelWriter binaryPicture = croppedImage.getPixelWriter();
+        
+        //test
+        BufferedImage test = (BufferedImage) binaryPicture;
+        
+        ImageFilter filter = new GrayFilter(true, 50);  
+//        ImageProducer producer = new FilteredImageSource(orig, filter);  
+//Image mage = Toolkit.getDefaultToolkit().createImage(producer); 
 
         //threshold farbe, decides if pixel are black or white
         Color threshold = Color.rgb(150, 150, 150);
@@ -186,6 +200,7 @@ public class DatabaseCreation {
                 }
             }
         }
+     
         //used to create a file
 //        this.newFile = new File(setURL());
 //        if (checkForCroppedImage() == false) {
@@ -198,6 +213,11 @@ public class DatabaseCreation {
         wrapper.setFileName(getName());
         wrapper.setImage(croppedImage);
         return wrapper;
+    }
+    
+    
+    private void otsuMethod(Image greyImage) {
+        /*todo*/
     }
 
     /**
