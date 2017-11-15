@@ -5,6 +5,8 @@
  */
 package bachelor.util;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
@@ -31,7 +33,7 @@ import javax.swing.GrayFilter;
 public class DatabaseCreation {
 
     private File ogFile = null;
-//    private File newFile = null;
+    private File newFile = null;
     private Image rawImage = null;
     private WritableImage croppedImage = null;
     private PixelReader pixelReader = null;
@@ -51,10 +53,11 @@ public class DatabaseCreation {
         return ogFile.getAbsolutePath();
     }
 
-//    private String setURL() {
-//        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
-//        return setURL;
-//    }
+    private String setURL() {
+        String setURL = "C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\" + getName();
+        return setURL;
+    }
+
     private String getName() {
         return ogFile.getName();
     }
@@ -178,44 +181,45 @@ public class DatabaseCreation {
 
         //This method returns a PixelWriter that provides access to write the pixels of the image.
         PixelWriter binaryPicture = croppedImage.getPixelWriter();
-        
+
         //test
-        BufferedImage test = (BufferedImage) binaryPicture;
-        
-        ImageFilter filter = new GrayFilter(true, 50);  
-//        ImageProducer producer = new FilteredImageSource(orig, filter);  
-//Image mage = Toolkit.getDefaultToolkit().createImage(producer); 
+        BufferedImage buffImg = SwingFXUtils.fromFXImage(croppedImage, null);
+        ImageFilter filter = new GrayFilter(true, 50);
+        ImageProducer producer = new FilteredImageSource(buffImg.getSource(), filter);
+        java.awt.Image test = Toolkit.getDefaultToolkit().createImage(producer);
+        BufferedImage buffered = (BufferedImage) test;
+        System.out.println("crash");
+        WritableImage asdf = SwingFXUtils.toFXImage(buffered, (null));
+        PixelWriter as = asdf.getPixelWriter();
 
-        //threshold farbe, decides if pixel are black or white
-        Color threshold = Color.rgb(150, 150, 150);
-
-        //checks every pixel in the image and compares them to the threshold
-        for (int y = 0; y < croppedImage.getHeight(); y++) {
-            for (int x = 0; x < croppedImage.getWidth(); x++) {
-                Color color = pixelReader.getColor(x, y);
-                if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
-                    binaryPicture.setColor(x, y, Color.WHITE);
-                } else {
-                    binaryPicture.setColor(x, y, Color.BLACK);
-                }
-            }
-        }
-     
-        //used to create a file
-//        this.newFile = new File(setURL());
-//        if (checkForCroppedImage() == false) {
-//            try {
-//                ImageIO.write(SwingFXUtils.fromFXImage(croppedImage, null), "png", newFile);
-//                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
-//            } catch (IOException ex) {
+//        //threshold farbe, decides if pixel are black or white
+//        Color threshold = Color.rgb(150, 150, 150);
+//
+//        //checks every pixel in the image and compares them to the threshold
+//        for (int y = 0; y < croppedImage.getHeight(); y++) {
+//            for (int x = 0; x < croppedImage.getWidth(); x++) {
+//                Color color = pixelReader.getColor(x, y);
+//                if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
+//                    binaryPicture.setColor(x, y, Color.WHITE);
+//                } else {
+//                    binaryPicture.setColor(x, y, Color.BLACK);
+//                }
 //            }
 //        }
+//        used to create a file
+        this.newFile = new File(setURL());
+        if (checkForCroppedImage() == false) {
+            try {
+                ImageIO.write(buffered, "png", newFile);
+                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
+            } catch (IOException ex) {
+            }
+        }
         wrapper.setFileName(getName());
         wrapper.setImage(croppedImage);
         return wrapper;
     }
-    
-    
+
     private void otsuMethod(Image greyImage) {
         /*todo*/
     }
@@ -226,11 +230,11 @@ public class DatabaseCreation {
      * @return
      * @throws FileNotFoundException
      */
-//    private boolean checkForCroppedImage() throws FileNotFoundException {
-//        if (newFile.exists() && !newFile.isDirectory()) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
+    private boolean checkForCroppedImage() throws FileNotFoundException {
+        if (newFile.exists() && !newFile.isDirectory()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
