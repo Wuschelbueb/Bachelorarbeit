@@ -5,6 +5,8 @@
  */
 package bachelor.util;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
@@ -54,7 +56,7 @@ public class DatabaseCreation {
     }
 
     private String setURL() {
-        String setURL = "C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\" + getName();
+        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
         return setURL;
     }
 
@@ -176,48 +178,59 @@ public class DatabaseCreation {
      */
     private WrapperImageName createBinaryPicture() throws FileNotFoundException {
 
-        pixelReader = croppedImage.getPixelReader();
+        createGrayScalePicutre();
+        this.pixelReader = croppedImage.getPixelReader();
         WrapperImageName wrapper = new WrapperImageName();
 
         //This method returns a PixelWriter that provides access to write the pixels of the image.
         PixelWriter binaryPicture = croppedImage.getPixelWriter();
 
-        //test
-        BufferedImage buffImg = SwingFXUtils.fromFXImage(croppedImage, null);
-        ImageFilter filter = new GrayFilter(true, 50);
-        ImageProducer producer = new FilteredImageSource(buffImg.getSource(), filter);
-        java.awt.Image test = Toolkit.getDefaultToolkit().createImage(producer);
-        BufferedImage buffered = (BufferedImage) test;
-        System.out.println("crash");
-        WritableImage asdf = SwingFXUtils.toFXImage(buffered, (null));
-        PixelWriter as = asdf.getPixelWriter();
+        //threshold farbe, decides if pixel are black or white
+        Color threshold = Color.rgb(150, 150, 150);
 
-//        //threshold farbe, decides if pixel are black or white
-//        Color threshold = Color.rgb(150, 150, 150);
-//
-//        //checks every pixel in the image and compares them to the threshold
-//        for (int y = 0; y < croppedImage.getHeight(); y++) {
-//            for (int x = 0; x < croppedImage.getWidth(); x++) {
-//                Color color = pixelReader.getColor(x, y);
-//                if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
-//                    binaryPicture.setColor(x, y, Color.WHITE);
-//                } else {
-//                    binaryPicture.setColor(x, y, Color.BLACK);
-//                }
-//            }
-//        }
-//        used to create a file
-        this.newFile = new File(setURL());
-        if (checkForCroppedImage() == false) {
-            try {
-                ImageIO.write(buffered, "png", newFile);
-                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
-            } catch (IOException ex) {
+        //checks every pixel in the image and compares them to the threshold
+        for (int y = 0; y < croppedImage.getHeight(); y++) {
+            for (int x = 0; x < croppedImage.getWidth(); x++) {
+                Color color = pixelReader.getColor(x, y);
+                if (color.getBlue() > threshold.getBlue() && color.getRed() > threshold.getRed() && color.getGreen() > threshold.getGreen()) {
+                    binaryPicture.setColor(x, y, Color.WHITE);
+                } else {
+                    binaryPicture.setColor(x, y, Color.BLACK);
+                }
             }
         }
+//        used to create a file
+//        this.newFile = new File(setURL());
+//        if (checkForCroppedImage() == false) {
+//            try {
+//                ImageIO.write(SwingFXUtils.fromFXImage(croppedImage, null), "png", newFile);
+//                System.out.println("snapshot saved: " + newFile.getAbsolutePath());
+//            } catch (IOException ex) {
+//            }
+//        }
         wrapper.setFileName(getName());
         wrapper.setImage(croppedImage);
         return wrapper;
+    }
+
+    /**
+     * creates a grayscaleImage of the original image. based on:
+     * https://stackoverflow.com/questions/9131678/convert-a-rgb-image-to-grayscale-image-reducing-the-memory-in-java
+     *
+     *
+     */
+    private void createGrayScalePicutre() {
+
+        //creates a bufferedPicture of the croppedImage
+        BufferedImage buffImg = SwingFXUtils.fromFXImage(croppedImage, null);
+        BufferedImage image = new BufferedImage((int) croppedImage.getWidth(), (int) croppedImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        //throws a grayscaling filter on it
+        Graphics2D g = image.createGraphics();
+        g.drawImage(buffImg, 0, 0, null);
+        g.dispose();
+        //transform the Image back to a javaFX Image. 
+        //replaces old croppedImage with new grayscale Image
+        this.croppedImage = (WritableImage) SwingFXUtils.toFXImage(image, null);
     }
 
     private void otsuMethod(Image greyImage) {

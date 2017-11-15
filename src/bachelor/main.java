@@ -44,18 +44,19 @@ public class main extends Application {
 //        PrintStream out = new PrintStream(new FileOutputStream("correlation_delta.txt"));
 //        System.setOut(out);
 
-        File[] ogFiles = new File("C:\\Users\\wusch\\Desktop\\test\\ganze_bilder").listFiles();
+        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder").listFiles();
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
         List<WrapperImageName> imageList = new ArrayList<>();
         List<WrapperSimilarityName> listWithResults = new ArrayList<>();
 
-        DatabaseCreation referentialPic = new DatabaseCreation(ogFiles[0]);
+        DatabaseCreation referentialPic = new DatabaseCreation(ogFiles[4]);
         imageList.add(referentialPic.createReferentialImage(50, 200, 2249, 150));
 
         for (File f : ogFiles) {
             if (!imageList.get(0).getName().equals(f.getName())) {
                 DatabaseCreation transformedPic = new DatabaseCreation(f);
                 imageList.add(transformedPic.createComparableImage(50, 200, 2249, 150));
+                System.out.println(f.getName());
             }
         }
 
