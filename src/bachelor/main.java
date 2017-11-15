@@ -56,7 +56,7 @@ public class main extends Application {
             if (!imageList.get(0).getName().equals(f.getName())) {
                 DatabaseCreation transformedPic = new DatabaseCreation(f);
                 imageList.add(transformedPic.createComparableImage(50, 200, 2249, 150));
-                System.out.println(f.getName());
+                System.out.println(f.getName() + " Memory: " + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1024));
             }
         }
 

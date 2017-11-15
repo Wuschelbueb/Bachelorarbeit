@@ -225,12 +225,13 @@ public class DatabaseCreation {
         BufferedImage buffImg = SwingFXUtils.fromFXImage(croppedImage, null);
         BufferedImage image = new BufferedImage((int) croppedImage.getWidth(), (int) croppedImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         //throws a grayscaling filter on it
-        Graphics2D g = image.createGraphics();
+        Graphics g = image.getGraphics();
         g.drawImage(buffImg, 0, 0, null);
         g.dispose();
         //transform the Image back to a javaFX Image. 
         //replaces old croppedImage with new grayscale Image
         this.croppedImage = (WritableImage) SwingFXUtils.toFXImage(image, null);
+//        image.flush();
     }
 
     private void otsuMethod(Image greyImage) {
