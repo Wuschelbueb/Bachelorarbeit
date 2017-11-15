@@ -41,8 +41,8 @@ public class main extends Application {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-//        PrintStream out = new PrintStream(new FileOutputStream("correlation_delta.txt"));
-//        System.setOut(out);
+        PrintStream out = new PrintStream(new FileOutputStream("memoryoutput.txt"));
+        System.setOut(out);
 
         File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder").listFiles();
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
@@ -56,7 +56,7 @@ public class main extends Application {
             if (!imageList.get(0).getName().equals(f.getName())) {
                 DatabaseCreation transformedPic = new DatabaseCreation(f);
                 imageList.add(transformedPic.createComparableImage(50, 200, 2249, 150));
-                System.out.println(f.getName() + " Memory: " + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1024));
+                System.out.println(f.getName() + "; Total Memory" + (Runtime.getRuntime().totalMemory() / 1024)+ " MB; Free Memory: " +(Runtime.getRuntime().freeMemory()/1024)+" MB; Used Memory: " + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1024)+"MB");
             }
         }
 
