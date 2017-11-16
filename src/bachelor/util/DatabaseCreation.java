@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -56,7 +58,7 @@ public class DatabaseCreation {
     }
 
     private String setURL() {
-        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
+        String setURL = "C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\" + getName();
         return setURL;
     }
 
@@ -178,12 +180,14 @@ public class DatabaseCreation {
      */
     private WrapperImageName createBinaryPicture() throws FileNotFoundException {
 
-        createGrayScalePicutre();
+        this.croppedImage = createGrayScalePicutre();
         this.pixelReader = croppedImage.getPixelReader();
         WrapperImageName wrapper = new WrapperImageName();
 
         //This method returns a PixelWriter that provides access to write the pixels of the image.
         PixelWriter binaryPicture = croppedImage.getPixelWriter();
+
+        otsuMethod(croppedImage);
 
         //threshold farbe, decides if pixel are black or white
         Color threshold = Color.rgb(150, 150, 150);
@@ -219,23 +223,54 @@ public class DatabaseCreation {
      *
      *
      */
-    private void createGrayScalePicutre() {
+    private WritableImage createGrayScalePicutre() {
 
         //creates a bufferedPicture of the croppedImage
-        BufferedImage buffImg = SwingFXUtils.fromFXImage(croppedImage, null);
-        BufferedImage image = new BufferedImage((int) croppedImage.getWidth(), (int) croppedImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage grayImg = new BufferedImage((int) croppedImage.getWidth(), (int) croppedImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         //throws a grayscaling filter on it
-        Graphics g = image.getGraphics();
-        g.drawImage(buffImg, 0, 0, null);
-        g.dispose();
+        Graphics graph = grayImg.getGraphics();
+        graph.drawImage(SwingFXUtils.fromFXImage(croppedImage, null), 0, 0, null);
+        graph.dispose();
         //transform the Image back to a javaFX Image. 
         //replaces old croppedImage with new grayscale Image
-        this.croppedImage = (WritableImage) SwingFXUtils.toFXImage(image, null);
-//        image.flush();
+        return (WritableImage) SwingFXUtils.toFXImage(grayImg, null);
     }
 
     private void otsuMethod(Image greyImage) {
-        /*todo*/
+        List<Integer> histogram = new ArrayList<>();
+        int threshold = 256;
+        double weightBackground = 0.0;
+        double weightForeground = 0.0;
+        double meanBackground = 0.0;
+        double meanForeground = 0.0;
+
+        //histogram creation
+        for (int i = 0; i < threshold; i++) {
+            int colorCounter = 0;
+            for (int y = 0; y < croppedImage.getHeight(); y++) {
+                for (int x = 0; x < croppedImage.getWidth(); x++) {
+                    if (Color.rgb(i, i, i).equals(pixelReader.getColor(x, y))) {
+                        colorCounter++;
+                    }
+                }
+            }
+            histogram.add(colorCounter);
+        }
+        for (int t = 0; t < threshold; t++) {
+            int getBValue = 0;
+            int getFValue = 0;
+            for (int i = 0; i < t; i++) {
+                getBValue += histogram.get(i);
+            }
+            double weightB = getBValue / (croppedImage.getHeight() * croppedImage.getWidth());
+
+            for (int i = t; i < threshold; i++) {
+                getFValue += histogram.get(i);
+            }
+            double weightF = getFValue / (croppedImage.getHeight() * croppedImage.getWidth());
+        }
+        System.out.println("test");
+
     }
 
     /**

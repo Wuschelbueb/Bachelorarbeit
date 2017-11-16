@@ -33,7 +33,7 @@ import javafx.stage.Stage;
  * @author David
  */
 public class main extends Application {
-    
+
     private List<WrapperImageName> imageList = null;
 
     /**
@@ -41,10 +41,10 @@ public class main extends Application {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-        PrintStream out = new PrintStream(new FileOutputStream("memoryoutput.txt"));
-        System.setOut(out);
+//        PrintStream out = new PrintStream(new FileOutputStream("memoryoutput2.txt"));
+//        System.setOut(out);
 
-        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder").listFiles();
+        File[] ogFiles = new File("C:\\Users\\wusch\\Desktop\\test\\ganze_bilder").listFiles();
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
         List<WrapperImageName> imageList = new ArrayList<>();
         List<WrapperSimilarityName> listWithResults = new ArrayList<>();
@@ -56,7 +56,11 @@ public class main extends Application {
             if (!imageList.get(0).getName().equals(f.getName())) {
                 DatabaseCreation transformedPic = new DatabaseCreation(f);
                 imageList.add(transformedPic.createComparableImage(50, 200, 2249, 150));
-                System.out.println(f.getName() + "; Total Memory" + (Runtime.getRuntime().totalMemory() / 1024)+ " MB; Free Memory: " +(Runtime.getRuntime().freeMemory()/1024)+" MB; Used Memory: " + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1024)+"MB");
+//                System.out.println(f.getName() + "  ||  Total Memory: "
+//                        + (Runtime.getRuntime().totalMemory() / 1024) + " MB  ||  Free Memory: "
+//                        + (Runtime.getRuntime().freeMemory() / 1024) + " MB  ||  Used Memory: "
+//                        + ((Runtime.getRuntime().totalMemory()
+//                        - Runtime.getRuntime().freeMemory()) / 1024) + "MB");
             }
         }
 
@@ -73,7 +77,7 @@ public class main extends Application {
         for (WrapperSimilarityName str : listWithResults) {
             System.out.println(str);
         }
-        
+
         System.out.println("hoi");
 //        launch(args);
     }
