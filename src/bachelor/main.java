@@ -41,10 +41,10 @@ public class main extends Application {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-//        PrintStream out = new PrintStream(new FileOutputStream("memoryoutput2.txt"));
-//        System.setOut(out);
+        PrintStream out = new PrintStream(new FileOutputStream("eachotsu.txt"));
+        System.setOut(out);
 
-        File[] ogFiles = new File("C:\\Users\\wusch\\Desktop\\test\\ganze_bilder").listFiles();
+        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder").listFiles();
         List<DatabaseOperation> listOfPictures = new ArrayList<>();
         List<WrapperImageName> imageList = new ArrayList<>();
         List<WrapperSimilarityName> listWithResults = new ArrayList<>();

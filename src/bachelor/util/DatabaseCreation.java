@@ -6,29 +6,21 @@
 package bachelor.util;
 
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageFilter;
-import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
-import javax.swing.GrayFilter;
 
 /**
  *
@@ -58,7 +50,7 @@ public class DatabaseCreation {
     }
 
     private String setURL() {
-        String setURL = "C:\\Users\\wusch\\Desktop\\test\\halbe_bilder\\" + getName();
+        String setURL = "C:\\Users\\David\\Desktop\\test\\halbe_bilder\\" + getName();
         return setURL;
     }
 
@@ -187,10 +179,10 @@ public class DatabaseCreation {
         //This method returns a PixelWriter that provides access to write the pixels of the image.
         PixelWriter binaryPicture = croppedImage.getPixelWriter();
 
-        otsuMethod(croppedImage);
+        int thresholdValue = otsuMethod();
 
         //threshold farbe, decides if pixel are black or white
-        Color threshold = Color.rgb(150, 150, 150);
+        Color threshold = Color.rgb(thresholdValue, thresholdValue, thresholdValue);
 
         //checks every pixel in the image and compares them to the threshold
         for (int y = 0; y < croppedImage.getHeight(); y++) {
@@ -236,41 +228,80 @@ public class DatabaseCreation {
         return (WritableImage) SwingFXUtils.toFXImage(grayImg, null);
     }
 
-    private void otsuMethod(Image greyImage) {
-        List<Integer> histogram = new ArrayList<>();
+    private Integer otsuMethod() {
+        List<Integer> histogram = new ArrayList<>(Collections.nCopies(256, 0));
         int threshold = 256;
-        double weightBackground = 0.0;
-        double weightForeground = 0.0;
-        double meanBackground = 0.0;
-        double meanForeground = 0.0;
+        int bestThresholdValue = 0;
+        double betweenMaxValue = 0.0;
+        double maxPixel = (croppedImage.getHeight() * croppedImage.getWidth());
 
         //histogram creation
-        for (int i = 0; i < threshold; i++) {
-            int colorCounter = 0;
-            for (int y = 0; y < croppedImage.getHeight(); y++) {
-                for (int x = 0; x < croppedImage.getWidth(); x++) {
-                    if (Color.rgb(i, i, i).equals(pixelReader.getColor(x, y))) {
-                        colorCounter++;
-                    }
-                }
+        for (int y = 0; y < croppedImage.getHeight(); y++) {
+            for (int x = 0; x < croppedImage.getWidth(); x++) {
+                histogram.set((int) (pixelReader.getColor(x, y).getBlue() * 255),
+                        histogram.get((int) (pixelReader.getColor(x, y).getBlue() * 255)) + 1);
             }
-            histogram.add(colorCounter);
         }
+
+        //between class variance calculation
         for (int t = 0; t < threshold; t++) {
             int getBValue = 0;
             int getFValue = 0;
+
+            double meanBNom = 0;
+            double meanBDen = 0;
+            double meanBackground = 0;
+
+            double meanFNom = 0;
+            double meanFDen = 0;
+            double meanForeground = 0;
+
+            double tempBetweenClassVar = 0;
+
+            //calculate weightBackground
             for (int i = 0; i < t; i++) {
                 getBValue += histogram.get(i);
             }
-            double weightB = getBValue / (croppedImage.getHeight() * croppedImage.getWidth());
+            double weightBackground = getBValue / maxPixel;
 
+            //calculate weightForeground
             for (int i = t; i < threshold; i++) {
                 getFValue += histogram.get(i);
             }
-            double weightF = getFValue / (croppedImage.getHeight() * croppedImage.getWidth());
-        }
-        System.out.println("test");
+            double weightForeground = getFValue / maxPixel;
 
+            //calculate meanBackground
+            for (int j = 0; j < t; j++) {
+                meanBNom += (histogram.get(j) * j);
+                meanBDen += histogram.get(j);
+            }
+            if (meanBDen == 0) {
+                meanBackground = 0;
+            } else {
+                meanBackground = meanBNom / meanBDen;
+            }
+
+            //calculate meanForeground
+            for (int j = t; j < threshold; j++) {
+                meanFNom += (histogram.get(j) * j);
+                meanFDen += histogram.get(j);
+            }
+            if (meanFDen == 0) {
+                meanForeground = 0;
+            } else {
+                meanForeground = meanFNom / meanFDen;
+            }
+
+            //calculate between class variance
+            tempBetweenClassVar = weightBackground * weightForeground
+                    * Math.pow(meanBackground - meanForeground, 2);
+
+            if (betweenMaxValue < tempBetweenClassVar) {
+                betweenMaxValue = tempBetweenClassVar;
+                bestThresholdValue = t;
+            }
+        }
+        return bestThresholdValue;
     }
 
     /**
