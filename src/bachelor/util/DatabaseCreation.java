@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +19,6 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -227,7 +225,10 @@ public class DatabaseCreation {
         //replaces old croppedImage with new grayscale Image
         return (WritableImage) SwingFXUtils.toFXImage(grayImg, null);
     }
-
+    /**
+     * calculates the perfect threshold for a binary picture. needs a grayscaleimage to work.
+     * @return 
+     */
     private Integer otsuMethod() {
         List<Integer> histogram = new ArrayList<>(Collections.nCopies(256, 0));
         int threshold = 256;
