@@ -5,10 +5,7 @@
  */
 package bachelor;
 
-import bachelor.util.DatabaseOperation;
-import bachelor.util.DatabaseCreation;
-import bachelor.util.WrapperImageName;
-import bachelor.util.WrapperSimilarityName;
+import bachelor.util.MyApplication;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +14,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -34,70 +29,18 @@ import javafx.stage.Stage;
  */
 public class main extends Application {
 
-    private List<WrapperImageName> imageList = null;
+//    private List<WrapperImgSimName> imageList = null;
 
     /**
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-        PrintStream out = new PrintStream(new FileOutputStream("eachotsu.txt"));
+        PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
         System.setOut(out);
-
-        File[] ogFiles = new File("C:\\Users\\David\\Desktop\\test\\ganze_bilder").listFiles();
-        List<DatabaseOperation> listOfPictures = new ArrayList<>();
-        List<WrapperImageName> imageList = new ArrayList<>();
-        List<WrapperSimilarityName> listWithResults = new ArrayList<>();
-
-        DatabaseCreation referentialPic = new DatabaseCreation(ogFiles[4]);
-        imageList.add(referentialPic.createReferentialImage(50, 200, 2249, 150));
-
-        for (File f : ogFiles) {
-            if (!imageList.get(0).getName().equals(f.getName())) {
-                DatabaseCreation transformedPic = new DatabaseCreation(f);
-                imageList.add(transformedPic.createComparableImage(50, 200, 2249, 150));
-//                System.out.println(f.getName() + "  ||  Total Memory: "
-//                        + (Runtime.getRuntime().totalMemory() / 1024) + " MB  ||  Free Memory: "
-//                        + (Runtime.getRuntime().freeMemory() / 1024) + " MB  ||  Used Memory: "
-//                        + ((Runtime.getRuntime().totalMemory()
-//                        - Runtime.getRuntime().freeMemory()) / 1024) + "MB");
-            }
-        }
-
-        for (WrapperImageName img : imageList) {
-            DatabaseOperation newPicture = new DatabaseOperation(img);
-            listOfPictures.add(newPicture);
-        }
-        for (int i = 0; i < listOfPictures.size(); i++) {
-            listWithResults.add(listOfPictures.get(0).compareTo(listOfPictures.get(i)));
-        }
-
-        //sorts and prints the values.
-        Collections.sort(listWithResults, WrapperSimilarityName.simResultsComparison);
-        for (WrapperSimilarityName str : listWithResults) {
-            System.out.println(str);
-        }
-
-        System.out.println("hoi");
+        MyApplication myApplication = new MyApplication();
+        myApplication.start();
 //        launch(args);
-    }
-
-    /**
-     * creates a list of all files in a directory.
-     *
-     * @param files
-     * @return
-     */
-    public static ArrayList<String> createListOfFiles(File[] files) {
-        ArrayList<String> listOfFiles = new ArrayList<>();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                createListOfFiles(files);
-            } else {
-                listOfFiles.add(file.getName());
-            }
-        }
-        return listOfFiles;
     }
 
     @Override
