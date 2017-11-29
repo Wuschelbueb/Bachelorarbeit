@@ -28,32 +28,34 @@ public class MyApplication {
     private File[] ogFiles = null;
     private List<MyImageResult> imageList = new ArrayList<>();
     private MyImage refImage = null;
-    
-    
-    public MyApplication() throws FileNotFoundException, IOException {
-        
-        //read from config.properties file the properties
-        //based on: https://www.mkyong.com/java/java-properties-file-examples/
-        String configFile = "config.properties";
-        InputStream configPath = getClass().getClassLoader().getResourceAsStream(configFile);
-        Properties prop = new Properties();
-        prop.load(configPath);
-        
-        //save the properties as a string
-        String path = prop.getProperty("path");
-        String refImgName = prop.getProperty("refImage");
 
-        //create array of all files in a path
-        ogFiles = new File(path).listFiles();
-        imageList = new ArrayList<>();
-        
-        //choose refImage with properties file
-        for (File f : ogFiles) {
-            if (f.getName().equals(refImgName)) {
-                refImage = new MyImage(f);
+    public MyApplication() {
+
+        try {
+            //read from config.properties file the properties
+            //based on: https://www.mkyong.com/java/java-properties-file-examples/
+            String configFile = "config.properties";
+            InputStream configPath = getClass().getClassLoader().getResourceAsStream(configFile);
+            Properties prop = new Properties();
+            prop.load(configPath);
+
+            //save the properties as a string
+            String path = prop.getProperty("path");
+            String refImgName = prop.getProperty("refImage");
+
+            //create array of all files in a path
+            ogFiles = new File(path).listFiles();
+            imageList = new ArrayList<>();
+
+            //choose refImage with properties file
+            for (File f : ogFiles) {
+                if (f.getName().equals(refImgName)) {
+                    refImage = new MyImage(f);
+                }
             }
+        } catch (IOException e) {
+            System.out.println("Can't find path to config file or files");
         }
-
     }
 
     public void start() {

@@ -97,8 +97,8 @@ public class MyImage implements Comparable<MyImage> {
         pixelReader = rawImage.getPixelReader();
         int ImageWidth = (int) rawImage.getWidth();
         int ImageHeight = (int) rawImage.getHeight();
-        int newXDistance = (int) (xDistance + 500);
-        int newYDistance = (int) (yDistance + 500);
+        int newXDistance = (int) (xDistance + 400);
+        int newYDistance = (int) (yDistance + 400);
         
 //conditions to set the new startingPositions
         if (xStartingPosition > (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {

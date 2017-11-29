@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,14 +31,18 @@ import javafx.stage.Stage;
 public class main extends Application {
 
 //    private List<WrapperImgSimName> imageList = null;
-
     /**
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
      */
-    public static void main(String[] args) throws FileNotFoundException {
-        PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
-        System.setOut(out);
+    public static void main(String[] args) {
+        try {
+            PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
+            System.setOut(out);
+        } catch (IOException e) {
+            System.out.println("Can't create text!");
+        }
+
         MyApplication myApplication = new MyApplication();
         myApplication.start();
 //        launch(args);
