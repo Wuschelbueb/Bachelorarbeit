@@ -14,6 +14,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.image.Image;
 
 /**
  *
@@ -58,33 +66,57 @@ public class MyApplication {
         }
     }
 
+    /**
+     * start takes all files, converts them to myImages and calls the
+     * calculateSmilarity. all this is based on multithreading.
+     *
+     * based on:
+     * http://winterbe.com/posts/2015/04/07/java8-concurrency-tutorial-thread-executor-examples/
+     * http://winterbe.com/posts/2014/03/16/java-8-tutorial/
+     * https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
+     * https://blogs.oracle.com/corejavatechtips/using-callable-to-return-results-from-runnables
+     * https://stackoverflow.com/questions/38924444/executorservice-for-do-while-loop-in-java
+     * 
+     */
     public void start() {
         long start = new Date().getTime();
         refImage.createReferentialImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
+        //is needed to execute in multithreading
+        ExecutorService executor = Executors.newFixedThreadPool(12);
 
-//        List<Thread> threads = new ArrayList();
+        //needed to temporarly save results
+        List<Future> futureList = new ArrayList();
+
         //create images and calculate the similarity
         for (File ogFile : ogFiles) {
-            try {
-                if (!refImage.getName().equals(ogFile.getName())) {
-                    MyImage compImage = new MyImage(ogFile, refImage);
-                    compImage.createComparableImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
-                    compImage.calculateSimilarity(refImage);
-                    imageList.add(compImage.getResult());
+            if (!refImage.getName().equals(ogFile.getName())) {
+                //directly cerates the call()-method of the Interface Callable with lambdas
+                Callable<MyImageResult> callable = () -> {
+                    MyImage compImg = new MyImage(ogFile);
+                    compImg.createComparableImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
+                    compImg.calculateSimilarity(refImage);
+                    return compImg.getResult();
+                };
 
-                    //run in multiple threads
-//                    Thread t = new Thread(compImage, compImage.getName());
-//                    threads.add(t);
-//                    t.start();
-                }
-            } catch (Exception e) {
-                System.out.println("error in " + ogFile.getName());
-                imageList.add(new MyImageResult(ogFile.getName(), e));
+                Future<MyImageResult> future = executor.submit(callable);
+                futureList.add(future);
             }
         }
-//sort images similarities
+        //stops the executorService
+        executor.shutdown();
+
+        //takes the futureList with the results and adds them to the imagelist
+        for (Future e : futureList) {
+            try {
+                imageList.add((MyImageResult) e.get());
+            } catch (InterruptedException | ExecutionException ex) {
+                Logger.getLogger(MyApplication.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        //sort images from imageList based on the similarity
         Collections.sort(imageList);
-//output result
+        //output result
         imageList.forEach(System.out::println);
         long end = new Date().getTime();
         long duration = end - start;

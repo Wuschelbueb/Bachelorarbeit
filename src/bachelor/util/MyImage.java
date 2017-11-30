@@ -5,6 +5,10 @@
  */
 package bachelor.util;
 
+import static bachelor.util.MyApplication.X_DISTANCE;
+import static bachelor.util.MyApplication.X_START;
+import static bachelor.util.MyApplication.Y_DISTANCE;
+import static bachelor.util.MyApplication.Y_START;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -24,7 +29,7 @@ import javafx.scene.paint.Color;
  *
  * @author David
  */
-public class MyImage implements Comparable<MyImage> {
+public class MyImage {
 
     private File originalFile = null;
     private Image rawImage = null;
@@ -35,7 +40,7 @@ public class MyImage implements Comparable<MyImage> {
     private Double similarity = null;
     private MyImage refImage = null;
     private Thread t;
-    
+
     public MyImage(File file) throws FileNotFoundException {
         this.originalFile = file;
         this.rawImage = new Image(new FileInputStream(getURL()));
@@ -99,7 +104,7 @@ public class MyImage implements Comparable<MyImage> {
         int ImageHeight = (int) rawImage.getHeight();
         int newXDistance = (int) (xDistance + 400);
         int newYDistance = (int) (yDistance + 400);
-        
+
 //conditions to set the new startingPositions
         if (xStartingPosition > (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
             xStartingPosition -= (int) (newXDistance / 2);
@@ -383,50 +388,7 @@ public class MyImage implements Comparable<MyImage> {
         return chiSquare;
     }
 
-    /**
-     * used to compare two double with the comparator. based on:
-     * https://stackoverflow.com/questions/4242023/comparator-with-double-type
-     * https://beginnersbook.com/2013/12/java-arraylist-of-object-sort-example-comparable-and-comparator/
-     */
-    @Override
-    public int compareTo(MyImage o) {
-        //compare with the similarity
-        if (this.getSimilarity() < o.getSimilarity()) {
-            return -1;
-        }
-
-        if (this.getSimilarity() > o.getSimilarity()) {
-            return 1;
-        }
-        return 0;
-
-    }
-
-    @Override
-    public String toString() {
-        return "File: " + getName() + " | Similarity: " + getSimilarity();
-    }
-
     public MyImageResult getResult() {
         return new MyImageResult(getName(), getSimilarity());
     }
-    
-
-//    @Override
-//    public void run() {
-//        
-//        long start = new Date().getTime();
-//                    //System.out.println("Thread START" + getName());
-//        createComparableImage();
-//        calculateSimilarity(refImage);
-//        try {
-//            Thread.sleep(random.nextInt(500));
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(MyImage.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//                    long end = new Date().getTime();
-//                    long duration = end-start;
-//        System.out.println("Thread STOP" + getName() + " " +duration+"ms");
-//    }
-
 }
