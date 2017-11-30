@@ -37,7 +37,7 @@ public class main extends Application {
      */
     public static void main(String[] args) {
         try {
-            PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
+            PrintStream out = new PrintStream(new FileOutputStream("results.txt"));
             System.setOut(out);
         } catch (IOException e) {
             System.out.println("Can't create text!");

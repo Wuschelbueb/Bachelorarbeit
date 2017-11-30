@@ -30,10 +30,10 @@ import javafx.scene.image.Image;
  */
 public class MyApplication {
 
-    public static final int X_START = 50;
-    public static final int Y_START = 200;
+    public static final int X_START = 80;
+    public static final int Y_START = 170;
     public static final int X_DISTANCE = 2249;
-    public static final int Y_DISTANCE = 150;
+    public static final int Y_DISTANCE = 110;
     private File[] ogFiles = null;
     private Integer numberOfCores = null;
     private List<MyImageResult> imageList = new ArrayList<>();
@@ -86,10 +86,10 @@ public class MyApplication {
         refImage.createReferentialImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
         //is needed to execute in multithreading
         ExecutorService executor = Executors.newFixedThreadPool(numberOfCores);
-
         //needed to temporarly save results
         List<Future> futureList = new ArrayList();
 
+        System.out.println("Referential Image: "+ refImage.getName());
         //create images and calculate the similarity
         for (File ogFile : ogFiles) {
             if (!refImage.getName().equals(ogFile.getName())) {
