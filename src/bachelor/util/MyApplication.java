@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.image.Image;
@@ -34,6 +35,7 @@ public class MyApplication {
     public static final int X_DISTANCE = 2249;
     public static final int Y_DISTANCE = 150;
     private File[] ogFiles = null;
+    private Integer numberOfCores = null;
     private List<MyImageResult> imageList = new ArrayList<>();
     private MyImage refImage = null;
 
@@ -50,6 +52,7 @@ public class MyApplication {
             //save the properties as a string
             String path = prop.getProperty("path");
             String refImgName = prop.getProperty("refImage");
+            numberOfCores = Integer.parseInt(prop.getProperty("cores"));
 
             //create array of all files in a path
             ogFiles = new File(path).listFiles();
@@ -76,13 +79,13 @@ public class MyApplication {
      * https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
      * https://blogs.oracle.com/corejavatechtips/using-callable-to-return-results-from-runnables
      * https://stackoverflow.com/questions/38924444/executorservice-for-do-while-loop-in-java
-     * 
+     *
      */
     public void start() {
         long start = new Date().getTime();
         refImage.createReferentialImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
         //is needed to execute in multithreading
-        ExecutorService executor = Executors.newFixedThreadPool(12);
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfCores);
 
         //needed to temporarly save results
         List<Future> futureList = new ArrayList();
