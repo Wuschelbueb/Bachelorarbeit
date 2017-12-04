@@ -59,7 +59,7 @@ public class MyImage {
         return originalFile.getName();
     }
 
-    public Image getBinaryImage() {
+    public Image getCroppedImage() {
         return croppedImage;
     }
 
