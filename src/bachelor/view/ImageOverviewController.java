@@ -6,19 +6,13 @@
 package bachelor.view;
 
 import bachelor.MainClass;
-import bachelor.util.MyImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
@@ -61,6 +55,7 @@ public class ImageOverviewController {
 //                        System.out.println(f.getName() + " and " + imageList.getSelectionModel().getSelectedItem());
                         Image showImg = new Image(new FileInputStream(f.getPath()));
                         imgPane.setImage(showImg);
+                        imgPane.setPreserveRatio(true);
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(ImageOverviewController.class.getName()).log(Level.SEVERE, null, ex);
                     }
