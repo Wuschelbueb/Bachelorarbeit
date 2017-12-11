@@ -5,36 +5,25 @@
  */
 package bachelor;
 
-import bachelor.util.MyApplication;
 import bachelor.view.ImageOverviewController;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
  *
  * @author David
  */
-public class MainClass extends Application {
+public class Main extends Application {
 
     private Stage primaryStage;
     private BorderPane rootLayout;
@@ -44,12 +33,12 @@ public class MainClass extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//        try {
-//            PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
-//            System.setOut(out);
-//        } catch (IOException e) {
-//            System.out.println("Can't create text!");
-//        }
+        try {
+            PrintStream out = new PrintStream(new FileOutputStream("test.txt"));
+            System.setOut(out);
+        } catch (IOException e) {
+            System.out.println("Can't create text!");
+        }
 //
 //        MyApplication myApplication = new MyApplication();
 //        myApplication.start();
@@ -74,7 +63,7 @@ public class MainClass extends Application {
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainClass.class.getResource("view/RootLayout.fxml"));
+            loader.setLocation(Main.class.getResource("view/RootLayout.fxml"));
             rootLayout = (BorderPane) loader.load();
 
             // Show the scene containing the root layout.
@@ -94,7 +83,7 @@ public class MainClass extends Application {
         try {
             // Load image overview.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainClass.class.getResource("view/ImageOverview.fxml"));
+            loader.setLocation(Main.class.getResource("view/ImageOverview.fxml"));
             AnchorPane imageOverview = (AnchorPane) loader.load();
             
             // Set image overview into the center of root layout.
@@ -108,7 +97,7 @@ public class MainClass extends Application {
     }
 
     /**
-     * Returns the MainClass stage.
+     * Returns the Main stage.
      *
      * @return
      */
@@ -122,20 +111,13 @@ public class MainClass extends Application {
             File selectedDirectory = directory.showDialog(primaryStage);
             allFiles = new File(selectedDirectory.getAbsolutePath()).listFiles();
         } catch (Exception e) {
-            System.out.println("No directory selected!");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText("No directory selected!");
+            alert.setContentText("No directory is selected. Please select one.");
+            alert.showAndWait();
         }
         return allFiles;
-    }
-
-    public File getFile(FileChooser file) {
-        File refImage = null;
-        try {
-            refImage = file.showOpenDialog(primaryStage);
-            System.out.println(refImage.getName());
-        } catch (Exception e) {
-            System.out.println("No Image selected");
-        }
-        return refImage; 
     }
 
 //    @Override

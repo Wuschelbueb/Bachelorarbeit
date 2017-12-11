@@ -5,7 +5,8 @@
  */
 package bachelor.view;
 
-import bachelor.MainClass;
+import bachelor.Main;
+import bachelor.util.MyApplication;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,25 +14,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import sun.plugin.javascript.navig.Anchor;
 
 /**
  *
@@ -49,13 +46,12 @@ public class ImageOverviewController {
 
     @FXML
     private Group imageLayer;
-    
-    @FXML
-    private AnchorPane paneRight;
-    
-    ScrollPane scrollPane;
 
-    private MainClass main;
+    @FXML
+    private ScrollPane scrollPane;
+
+    private MyApplication myApp = new MyApplication();
+    private Main main;
     private RubberBandSelection rubberBandSelection;
 
     public ImageOverviewController() {
@@ -75,26 +71,25 @@ public class ImageOverviewController {
                     try {
                         Image image = new Image(new FileInputStream(f.getPath()));
                         imageView.setImage(image);
-                        imageView.fitWidthProperty().bind(paneRight.widthProperty());
-
+//                        imageView.fitWidthProperty().bind(paneRight.widthProperty());
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(ImageOverviewController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
         });
-        System.out.println("test");
-        
+        //add image to layer
         imageLayer.getChildren().add(imageView);
-//        scrollPane.setContent(imageLayer);
+
+        //use scrollpane for imageview in case the image is too large
+        scrollPane.setContent(imageLayer);
+
+        //calls the ruberbandselection on the current layer
         rubberBandSelection = new RubberBandSelection(imageLayer);
     }
 
-    @FXML
-    private void initialize() {
-    }
-
     /**
+     * needs to be an obersavable list. so we can call/show elements in listview
      * based on: https://docs.oracle.com/javafx/2/ui_controls/list-view.htm
      *
      * @param files
@@ -119,24 +114,69 @@ public class ImageOverviewController {
     private void handleOpenDirectory() {
         DirectoryChooser directory = new DirectoryChooser();
         File[] allFiles = main.getDirectory(directory);
+        myApp.setFiles(allFiles);
         listFiles(allFiles);
     }
 
+    /**
+     * crops picture if i press the button.
+     */
     @FXML
     private void handleCropImage() {
-        Bounds selectionBounds = rubberBandSelection.getBounds();
-        System.out.println("selected area: " + selectionBounds);
+        try {
+            Bounds selectionBounds = rubberBandSelection.getBounds();
+            int width = (int) selectionBounds.getWidth();
+            int height = (int) selectionBounds.getHeight();
+            int xStart = (int) selectionBounds.getMinX();
+            int yStart = (int) selectionBounds.getMinY();
+            myApp.setImageParameters(xStart, yStart, width, height);
+        } catch (Exception e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("No picture or directory selected!");
+            alert.setContentText("Choose an Image or open a directory!");
+            alert.showAndWait();
+        }
     }
 
     /**
-     * based on:
-     * http://o7planning.org/de/11129/die-anleitung-zu-javafx-filechooser-und-directorychooser
-     * https://docs.oracle.com/javafx/2/ui_controls/file-chooser.htm
+     * sets the selected image as ref Image.
+     * 
      */
     @FXML
-    private void handleOpenImage() {
-        FileChooser file = new FileChooser();
-        File refFile = main.getFile(file);
+    private void handleSetRefImg() {
+        try {
+            String imageName = imageList.getSelectionModel().getSelectedItem();
+            if (imageName != null && !imageName.isEmpty()) {
+                myApp.setRefImage(imageName);
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Dialog");
+                alert.setHeaderText("No file selected!");
+                alert.setContentText("Choose a file!");
+                alert.showAndWait();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * starts the application.
+     */
+    @FXML
+    private void handleRun() {
+        try {
+            myApp.start();
+        } catch (Exception e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("Can't start Application!");
+            alert.setContentText("Did you select a directory? \n"
+                    + "Did you select a Ref Image? \n"
+                    + "Did you crop the Ref Image?");
+            alert.showAndWait();
+        }
+
     }
 
     /**
@@ -144,12 +184,8 @@ public class ImageOverviewController {
      *
      * @param main
      */
-    public void setMain(MainClass main) {
+    public void setMain(Main main) {
         this.main = main;
-    }
-
-    private void crop(Bounds bounds) {
-
     }
 
     /**
@@ -243,14 +279,9 @@ public class ImageOverviewController {
             }
         };
 
-        EventHandler<MouseEvent> onMouseReleasedEventHandler = new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent event) {
-
-                if (event.isSecondaryButtonDown()) {
-                    return;
-                }
+        EventHandler<MouseEvent> onMouseReleasedEventHandler = (MouseEvent event) -> {
+            if (event.isSecondaryButtonDown()) {
+                return;
             }
         };
 

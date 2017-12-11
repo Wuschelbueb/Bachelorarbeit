@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 
 /**
@@ -30,43 +31,34 @@ import javafx.scene.image.Image;
  */
 public class MyApplication {
 
-    public static final int X_START = 80;
-    public static final int Y_START = 170;
-    public static final int X_DISTANCE = 2249;
-    public static final int Y_DISTANCE = 110;
+    private Integer xStart = null;
+    private Integer yStart = null;
+    private Integer width = null;
+    private Integer height = null;
     private File[] ogFiles = null;
-    private Integer numberOfCores = null;
+    private final Integer numberOfCores = 12;
     private List<MyImageResult> imageList = new ArrayList<>();
     private MyImage refImage = null;
+    private String refImgName = null;
+
+    public void setRefImage(String refImgName) {
+        this.refImgName = refImgName;
+    }
+
+    //sets the distances needed to crop the ref Image
+    public void setImageParameters(int xStart, int yStart,
+            int width, int height) {
+        this.xStart = xStart;
+        this.yStart = yStart;
+        this.width = width;
+        this.height = height;
+    }
+
+    public void setFiles(File[] files) {
+        this.ogFiles = files;
+    }
 
     public MyApplication() {
-
-        try {
-            //read from config.properties file the properties
-            //based on: https://www.mkyong.com/java/java-properties-file-examples/
-            String configFile = "config.properties";
-            InputStream configPath = getClass().getClassLoader().getResourceAsStream(configFile);
-            Properties prop = new Properties();
-            prop.load(configPath);
-
-            //save the properties as a string
-            String path = prop.getProperty("path");
-            String refImgName = prop.getProperty("refImage");
-            numberOfCores = Integer.parseInt(prop.getProperty("cores"));
-
-            //create array of all files in a path
-            ogFiles = new File(path).listFiles();
-            imageList = new ArrayList<>();
-
-            //choose refImage with properties file
-            for (File f : ogFiles) {
-                if (f.getName().equals(refImgName)) {
-                    refImage = new MyImage(f);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Can't find path to config file or files");
-        }
     }
 
     /**
@@ -82,21 +74,36 @@ public class MyApplication {
      *
      */
     public void start() {
+
+        //create array of all files in a path
+        try {
+            imageList = new ArrayList<>();
+
+            //choose refImage with properties file
+            for (File f : ogFiles) {
+                if (f.getName().equals(refImgName)) {
+                    refImage = new MyImage(f);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         long start = new Date().getTime();
-        refImage.createReferentialImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
+        refImage.createReferentialImage(xStart, yStart, width, height);
         //is needed to execute in multithreading
         ExecutorService executor = Executors.newFixedThreadPool(numberOfCores);
         //needed to temporarly save results
         List<Future> futureList = new ArrayList();
 
-        System.out.println("Referential Image: "+ refImage.getName());
+        System.out.println("Referential Image: " + refImage.getName());
         //create images and calculate the similarity
         for (File ogFile : ogFiles) {
             if (!refImage.getName().equals(ogFile.getName())) {
                 //directly cerates the call()-method of the Interface Callable with lambdas
                 Callable<MyImageResult> callable = () -> {
                     MyImage compImg = new MyImage(ogFile);
-                    compImg.createComparableImage(X_START, Y_START, X_DISTANCE, Y_DISTANCE);
+                    compImg.createComparableImage(xStart, yStart, width, height);
                     compImg.calculateSimilarity(refImage);
                     return compImg.getResult();
                 };
@@ -124,5 +131,10 @@ public class MyApplication {
         long end = new Date().getTime();
         long duration = end - start;
         System.out.println("finished after: " + duration / 1000 + "s");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Finished!");
+        alert.setHeaderText("Calculations are complete!");
+        alert.setContentText("finished after: " + duration / 1000 + "s");
+        alert.showAndWait();
     }
 }

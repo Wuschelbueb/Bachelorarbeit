@@ -5,10 +5,6 @@
  */
 package bachelor.util;
 
-import static bachelor.util.MyApplication.X_DISTANCE;
-import static bachelor.util.MyApplication.X_START;
-import static bachelor.util.MyApplication.Y_DISTANCE;
-import static bachelor.util.MyApplication.Y_START;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -39,7 +34,6 @@ public class MyImage {
     private List<Double> verticalMatrix = null;
     private Double similarity = null;
     private MyImage refImage = null;
-    private Thread t;
 
     public MyImage(File file) throws FileNotFoundException {
         this.originalFile = file;
