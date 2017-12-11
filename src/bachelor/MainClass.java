@@ -92,13 +92,13 @@ public class MainClass extends Application {
      */
     public void showImageOverview() {
         try {
-            // Load person overview.
+            // Load image overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainClass.class.getResource("view/ImageOverview.fxml"));
-            AnchorPane personOverview = (AnchorPane) loader.load();
+            AnchorPane imageOverview = (AnchorPane) loader.load();
             
-            // Set person overview into the center of root layout.
-            rootLayout.setCenter(personOverview);
+            // Set image overview into the center of root layout.
+            rootLayout.setCenter(imageOverview);
 
             ImageOverviewController controller = loader.getController();
             controller.setMain(this);

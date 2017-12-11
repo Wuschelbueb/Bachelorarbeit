@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bachelor.view.ImageOverviewController">
+<AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bachelor.view.ImageOverviewController">
    <children>
-      <SplitPane dividerPositions="0.29797979797979796" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-               <children>
-                  <ListView fx:id="imageList" layoutX="-13.0" layoutY="112.0" onMouseClicked="#displayImage" prefHeight="398.0" prefWidth="173.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children>
-            </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-               <children>
-                  <VBox prefHeight="698.0" prefWidth="417.3333333333333" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane prefHeight="700.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <SplitPane dividerPositions="0.29797979797979796" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <ImageView fx:id="imgPane" fitHeight="600.0" pickOnBounds="true" preserveRatio="true" />
+                        <ListView fx:id="imageList" layoutX="-13.0" layoutY="112.0" onMouseClicked="#displayImage" prefHeight="398.0" prefWidth="173.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
-                  </VBox>
-                  <ButtonBar layoutX="201.0" layoutY="344.0" maxHeight="-Infinity" prefHeight="35.0" prefWidth="417.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                    <buttons>
-                      <Button mnemonicParsing="false" onAction="#handleOpenDirectory" text="Open Directory" />
-                        <Button mnemonicParsing="false" onAction="#handleOpenImage" text="Open File" />
-                        <Button mnemonicParsing="false" text="Run" />
-                    </buttons>
-                     <padding>
-                        <Insets right="5.0" />
-                     </padding>
-                  </ButtonBar>
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
+                  </AnchorPane>
+                <AnchorPane fx:id="paneRight" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+                        <Group fx:id="imageLayer" />
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+         </center>
+         <bottom>
+            <ButtonBar maxHeight="-Infinity" prefHeight="35.0" prefWidth="417.0" BorderPane.alignment="CENTER">
+              <buttons>
+                <Button mnemonicParsing="false" onAction="#handleOpenDirectory" text="Open Directory" />
+                  <Button mnemonicParsing="false" onAction="#handleOpenImage" text="Ref Image" />
+                  <Button mnemonicParsing="false" onAction="#handleCropImage" text="Crop" />
+                  <Button mnemonicParsing="false" text="Run" />
+              </buttons>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </ButtonBar>
+         </bottom>
+      </BorderPane>
    </children>
 </AnchorPane>
