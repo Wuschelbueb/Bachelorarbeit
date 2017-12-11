@@ -7,9 +7,11 @@ package bachelor.view;
 
 import bachelor.Main;
 import bachelor.util.MyApplication;
+import bachelor.util.MyImageResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -25,6 +27,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
@@ -42,6 +45,9 @@ public class ImageOverviewController {
     private ListView<String> imageList;
 
     @FXML
+    private ListView<String> resultList;
+
+    @FXML
     private ImageView imageView;
 
     @FXML
@@ -49,6 +55,9 @@ public class ImageOverviewController {
 
     @FXML
     private ScrollPane scrollPane;
+    
+    @FXML
+    private AnchorPane rightPane;
 
     private MyApplication myApp = new MyApplication();
     private Main main;
@@ -78,6 +87,8 @@ public class ImageOverviewController {
                 }
             }
         });
+        
+        imageLayer.getChildren().clear();
         //add image to layer
         imageLayer.getChildren().add(imageView);
 
@@ -141,7 +152,7 @@ public class ImageOverviewController {
 
     /**
      * sets the selected image as ref Image.
-     * 
+     *
      */
     @FXML
     private void handleSetRefImg() {
@@ -176,7 +187,40 @@ public class ImageOverviewController {
                     + "Did you crop the Ref Image?");
             alert.showAndWait();
         }
+        listResults();
+    }
+    
+    @FXML
+    private void displayResult() {
+        resultList.setOnMouseClicked((MouseEvent event) -> {
+            for (File f : fileList) {
+                if (f.getName().equals(resultList.getSelectionModel().getSelectedItem())) {
+                    try {
+                        Image image = new Image(new FileInputStream(f.getPath()));
+                        imageView.setImage(image);
+                        imageView.fitWidthProperty().bind(rightPane.widthProperty());
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(ImageOverviewController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        
+        imageLayer.getChildren().clear();
+        //add image to layer
+        imageLayer.getChildren().add(imageView);
 
+        //use scrollpane for imageview in case the image is too large
+        scrollPane.setContent(imageLayer);
+    }
+    
+    private void listResults() {
+        ObservableList<String> resultList = FXCollections.observableArrayList();
+            List<MyImageResult> results = myApp.getResults();
+            for (MyImageResult s : results) {
+                resultList.add(s.getName());
+            }
+            this.resultList.setItems(resultList);
     }
 
     /**

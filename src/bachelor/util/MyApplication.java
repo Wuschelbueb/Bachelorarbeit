@@ -131,10 +131,16 @@ public class MyApplication {
         long end = new Date().getTime();
         long duration = end - start;
         System.out.println("finished after: " + duration / 1000 + "s");
+        
+        //based on: http://code.makery.ch/blog/javafx-dialogs-official/
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Finished!");
         alert.setHeaderText("Calculations are complete!");
         alert.setContentText("finished after: " + duration / 1000 + "s");
         alert.showAndWait();
+    }
+    
+    public List<MyImageResult> getResults(){
+        return imageList;
     }
 }
