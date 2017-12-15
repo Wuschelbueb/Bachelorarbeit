@@ -26,6 +26,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -40,6 +41,7 @@ import javafx.stage.DirectoryChooser;
 public class ImageOverviewController {
 
     private File[] fileList = null;
+    private Double scalingRatio = null;
 
     @FXML
     private ListView<String> imageList;
@@ -55,7 +57,7 @@ public class ImageOverviewController {
 
     @FXML
     private ScrollPane scrollPane;
-    
+
     @FXML
     private AnchorPane rightPane;
 
@@ -67,27 +69,37 @@ public class ImageOverviewController {
 
     }
 
+    private void createAndFitImage(String path) {
+        try {
+            Image image = new Image(new FileInputStream(path));
+            imageView.setImage(image);
+            imageView.fitWidthProperty().bind(rightPane.widthProperty());
+            scalingRatio = imageView.getFitWidth() / image.getWidth();
+        } catch (Exception e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("No picture or directory selected!");
+            alert.setContentText("Choose an Image or open a directory!");
+            alert.showAndWait();
+        }
+
+    }
+
     /**
      * based on:
      * http://www.crazyandcoding.com/blog/post/javafx-selecting-an-item-in-a-listview/
      * https://stackoverflow.com/questions/9722418/how-to-handle-listview-item-clicked-action
      */
     @FXML
-    private void displayImage() {
+    private void displayImageWithMouse() {
         imageList.setOnMouseClicked((MouseEvent event) -> {
             for (File f : fileList) {
                 if (f.getName().equals(imageList.getSelectionModel().getSelectedItem())) {
-                    try {
-                        Image image = new Image(new FileInputStream(f.getPath()));
-                        imageView.setImage(image);
-//                        imageView.fitWidthProperty().bind(paneRight.widthProperty());
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(ImageOverviewController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    createAndFitImage(f.getPath());
                 }
             }
         });
-        
+
         imageLayer.getChildren().clear();
         //add image to layer
         imageLayer.getChildren().add(imageView);
@@ -97,6 +109,63 @@ public class ImageOverviewController {
 
         //calls the ruberbandselection on the current layer
         rubberBandSelection = new RubberBandSelection(imageLayer);
+    }
+
+    @FXML
+    private void displayImageWithKey() {
+        imageList.setOnKeyReleased((KeyEvent event) -> {
+            for (File f : fileList) {
+                if (f.getName().equals(imageList.getSelectionModel().getSelectedItem())) {
+                    createAndFitImage(f.getPath());
+                }
+            }
+        });
+
+        imageLayer.getChildren().clear();
+        //add image to layer
+        imageLayer.getChildren().add(imageView);
+
+        //use scrollpane for imageview in case the image is too large
+        scrollPane.setContent(imageLayer);
+
+        //calls the ruberbandselection on the current layer
+        rubberBandSelection = new RubberBandSelection(imageLayer);
+    }
+
+    @FXML
+    private void displayResultWithMouse() {
+        resultList.setOnMouseClicked((MouseEvent event) -> {
+            for (File f : fileList) {
+                if (f.getName().equals(resultList.getSelectionModel().getSelectedItem())) {
+                    createAndFitImage(f.getPath());
+                }
+            }
+        });
+
+        imageLayer.getChildren().clear();
+        //add image to layer
+        imageLayer.getChildren().add(imageView);
+
+        //use scrollpane for imageview in case the image is too large
+        scrollPane.setContent(imageLayer);
+    }
+
+    @FXML
+    private void displayResultWithKey() {
+        resultList.setOnKeyReleased((KeyEvent event) -> {
+            for (File f : fileList) {
+                if (f.getName().equals(resultList.getSelectionModel().getSelectedItem())) {
+                    createAndFitImage(f.getPath());
+                }
+            }
+        });
+
+        imageLayer.getChildren().clear();
+        //add image to layer
+        imageLayer.getChildren().add(imageView);
+
+        //use scrollpane for imageview in case the image is too large
+        scrollPane.setContent(imageLayer);
     }
 
     /**
@@ -136,10 +205,11 @@ public class ImageOverviewController {
     private void handleCropImage() {
         try {
             Bounds selectionBounds = rubberBandSelection.getBounds();
-            int width = (int) selectionBounds.getWidth();
-            int height = (int) selectionBounds.getHeight();
-            int xStart = (int) selectionBounds.getMinX();
-            int yStart = (int) selectionBounds.getMinY();
+            int width = (int) (selectionBounds.getWidth() / scalingRatio);
+            int height = (int) (selectionBounds.getHeight() / scalingRatio);
+            int xStart = (int) (selectionBounds.getMinX() / scalingRatio);
+            int yStart = (int) (selectionBounds.getMinY() / scalingRatio);
+            System.out.println("minx: " + xStart + "\nminy: " + yStart + "\nwidth: " + width + "\nheight: " + height);
             myApp.setImageParameters(xStart, yStart, width, height);
         } catch (Exception e) {
             Alert alert = new Alert(AlertType.ERROR);
@@ -189,38 +259,14 @@ public class ImageOverviewController {
         }
         listResults();
     }
-    
-    @FXML
-    private void displayResult() {
-        resultList.setOnMouseClicked((MouseEvent event) -> {
-            for (File f : fileList) {
-                if (f.getName().equals(resultList.getSelectionModel().getSelectedItem())) {
-                    try {
-                        Image image = new Image(new FileInputStream(f.getPath()));
-                        imageView.setImage(image);
-                        imageView.fitWidthProperty().bind(rightPane.widthProperty());
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(ImageOverviewController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
-        
-        imageLayer.getChildren().clear();
-        //add image to layer
-        imageLayer.getChildren().add(imageView);
 
-        //use scrollpane for imageview in case the image is too large
-        scrollPane.setContent(imageLayer);
-    }
-    
     private void listResults() {
         ObservableList<String> resultList = FXCollections.observableArrayList();
-            List<MyImageResult> results = myApp.getResults();
-            for (MyImageResult s : results) {
-                resultList.add(s.getName());
-            }
-            this.resultList.setItems(resultList);
+        List<MyImageResult> results = myApp.getResults();
+        for (MyImageResult s : results) {
+            resultList.add(s.getName());
+        }
+        this.resultList.setItems(resultList);
     }
 
     /**

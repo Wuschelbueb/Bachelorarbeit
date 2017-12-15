@@ -39,9 +39,6 @@ public class Main extends Application {
         } catch (IOException e) {
             System.out.println("Can't create text!");
         }
-//
-//        MyApplication myApplication = new MyApplication();
-//        myApplication.start();
         launch(args);
     }
 
@@ -119,23 +116,4 @@ public class Main extends Application {
         }
         return allFiles;
     }
-
-//    @Override
-//    public void start(Stage stage) throws Exception {
-//        ImageView test = new ImageView(imageList.get(0).getImage());
-//        test.setFitWidth(1000);
-//        test.setPreserveRatio(true);
-//        Group root = new Group(test);
-//        Scene scene = new Scene(root);
-//        scene.setFill(Color.BLACK);
-//        HBox box = new HBox();
-//        root.getChildren().add(box);
-//
-//        stage.setTitle("ImageView");
-//        stage.setScene(scene);
-//        stage.sizeToScene();
-//        stage.show();
-//        throw new UnsupportedOperationException(
-//                "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
 }
