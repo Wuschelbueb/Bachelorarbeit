@@ -36,7 +36,7 @@ public class MyApplication {
     private Integer width = null;
     private Integer height = null;
     private File[] ogFiles = null;
-    private final Integer numberOfCores = 12;
+    private final Integer numberOfCores = 8;
     private List<MyImageResult> imageList = new ArrayList<>();
     private MyImage refImage = null;
     private String refImgName = null;
@@ -90,7 +90,7 @@ public class MyApplication {
         }
 
         long start = new Date().getTime();
-        refImage.createReferentialImage(xStart, yStart, width, height);
+        refImage.createRefImageBW(xStart, yStart, width, height);
         //is needed to execute in multithreading
         ExecutorService executor = Executors.newFixedThreadPool(numberOfCores);
         //needed to temporarly save results
@@ -103,8 +103,8 @@ public class MyApplication {
                 //directly cerates the call()-method of the Interface Callable with lambdas
                 Callable<MyImageResult> callable = () -> {
                     MyImage compImg = new MyImage(ogFile);
-                    compImg.createComparableImage(xStart, yStart, width, height);
-                    compImg.calculateSimilarity(refImage);
+                    compImg.createCompImgBW(xStart, yStart, width, height);
+                    compImg.calculateSimilarityBW(refImage);
                     return compImg.getResult();
                 };
 
@@ -125,7 +125,7 @@ public class MyApplication {
 
         }
         //sort images from imageList based on the similarity
-        Collections.sort(imageList);
+        Collections.sort(imageList, Collections.reverseOrder(MyImageResult.Comparators.SIMILARITY));
         //output result
         imageList.forEach(System.out::println);
         long end = new Date().getTime();

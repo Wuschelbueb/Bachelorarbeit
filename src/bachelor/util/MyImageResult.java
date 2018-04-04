@@ -5,11 +5,13 @@
  */
 package bachelor.util;
 
+import java.util.Comparator;
+
 /**
  *
  * @author David
  */
-public class MyImageResult implements Comparable<MyImageResult>{
+public class MyImageResult {
     public String name;
     public Double similarity = null;
     public Exception error;
@@ -42,27 +44,8 @@ public class MyImageResult implements Comparable<MyImageResult>{
         return "File: " + getName() + " | Similarity: " + getSimilarity();
     }
     
-    /**
-     * used to compare two double with the comparator. based on:
-     * https://stackoverflow.com/questions/4242023/comparator-with-double-type
-     * https://beginnersbook.com/2013/12/java-arraylist-of-object-sort-example-comparable-and-comparator/
-     */
-    @Override
-    public int compareTo(MyImageResult o) {
-        if(this.getSimilarity() == null || o.getSimilarity() == null){
-            return Integer.MAX_VALUE;
-        }
-        //compare with the similarity
-        if (this.getSimilarity() < o.getSimilarity()) {
-            return -1;
-        }
-
-        if (this.getSimilarity() > o.getSimilarity()) {
-            return 1;
-        }
-        return 0;
-
-    }
-    
-    
+    public static class Comparators {
+        
+        public static Comparator<MyImageResult> SIMILARITY = Comparator.comparing(MyImageResult::getSimilarity);
+    }    
 }

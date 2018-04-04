@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -64,14 +66,15 @@ public class MyImage {
     /**
      * crops the original image to a new one. we do that with javaFX commands it
      * is important, that you use the starting parameters to set the rectangle.
-     * because the rectangle defines the size of the new image.
+     * because the rectangle defines the size of the new image. Used for binary
+     * image comparison!
      *
      * @param xStartingPosition
      * @param xDistance
      * @param yStartingPosition
      * @param yDistance
      */
-    public void createReferentialImage(int xStartingPosition,
+    public void createRefImageBW(int xStartingPosition,
             int yStartingPosition, int xDistance, int yDistance) {
         pixelReader = rawImage.getPixelReader();
         croppedImage = new WritableImage(pixelReader, xStartingPosition,
@@ -84,20 +87,20 @@ public class MyImage {
     /**
      * creates the images, which need to be compared. they will be 20% bigger
      * than the referential image. with the bigger size we make sure that the
-     * title is on the image
+     * title is on the image used for black and white image comparison
      *
      * @param xStartingPosition
      * @param xDistance
      * @param yStartingPosition
      * @param yDistance
      */
-    public void createComparableImage(int xStartingPosition,
+    public void createCompImgBW(int xStartingPosition,
             int yStartingPosition, int xDistance, int yDistance) {
         pixelReader = rawImage.getPixelReader();
         int ImageWidth = (int) rawImage.getWidth();
         int ImageHeight = (int) rawImage.getHeight();
-        int newXDistance = (int) (xDistance + 400);
-        int newYDistance = (int) (yDistance + 400);
+        int newXDistance = (int) (xDistance + 250);
+        int newYDistance = (int) (yDistance + 250);
 
 //conditions to set the new startingPositions
         if (xStartingPosition > (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
@@ -139,7 +142,6 @@ public class MyImage {
      * grayscale image. after that it gets transformed to a binary one.
      */
     private void createBinaryImage() {
-
         croppedImage = createGrayScaleImage();
         pixelReader = croppedImage.getPixelReader();
 //This method returns a PixelWriter that provides access to write the pixels of the image.
@@ -160,6 +162,14 @@ public class MyImage {
                 }
             }
         }
+        //creates png of binary image
+//        File outputFile = new File("C:/Users/David/Desktop/binary_images/" + getName());
+//        BufferedImage bImage = SwingFXUtils.fromFXImage(croppedImage, null);
+//        try {
+//            ImageIO.write(bImage, "png", outputFile);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     /**
@@ -177,8 +187,16 @@ public class MyImage {
         Graphics graph = grayImg.getGraphics();
         graph.drawImage(SwingFXUtils.fromFXImage(croppedImage, null), 0, 0, null);
         graph.dispose();
-//transform the Image back to a javaFX Image.         
-//replaces old croppedImage with new grayscale Image
+
+        //creates png of binary image
+//        File outputFile = new File("C:/Users/David/Desktop/grayscale_images/" + getName());
+//        try {
+//            ImageIO.write(grayImg, "png", outputFile);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+        //transform the Image back to a javaFX Image.         
+        //replaces old croppedImage with new grayscale Image
         return (WritableImage) SwingFXUtils.toFXImage(grayImg, null);
     }
 
@@ -260,7 +278,7 @@ public class MyImage {
     /**
      * calculate the vertical Matrix of the binaryImage.
      */
-    public void calculateVerticalMatrix() {
+    public void calculateVerticalMatrixBW() {
         List<Double> tempVertMatrix = new ArrayList<>();
         double counter = 0;
         int heightOfImage = (int) croppedImage.getHeight();
@@ -278,9 +296,9 @@ public class MyImage {
         verticalMatrix = tempVertMatrix;
     }
 
-    public List<Double> getVerticalMatrix() {
+    public List<Double> getVerticalMatrixBW() {
         if (verticalMatrix == null) {
-            calculateVerticalMatrix();
+            calculateVerticalMatrixBW();
         }
         return verticalMatrix;
     }
@@ -288,7 +306,7 @@ public class MyImage {
     /**
      * calculate the horizontal Matrix of the binaryImage.
      */
-    public void calculateHorizontalMatrix() {
+    public void calculateHorizontalMatrixBW() {
         List<Double> tempHorzMatrix = new ArrayList<>();
         double counter = 0;
         int heightOfImage = (int) croppedImage.getHeight();
@@ -306,9 +324,9 @@ public class MyImage {
         horizontalMatrix = tempHorzMatrix;
     }
 
-    public List<Double> getHorizontalMatrix() {
+    public List<Double> getHorizontalMatrixBW() {
         if (horizontalMatrix == null) {
-            calculateHorizontalMatrix();
+            calculateHorizontalMatrixBW();
         }
         return horizontalMatrix;
     }
@@ -339,47 +357,205 @@ public class MyImage {
      *
      * @param refImage
      */
-    public void calculateSimilarity(MyImage refImage) {
-        double vert = compareChiSquare(refImage.getVerticalMatrix(), getVerticalMatrix());
-        double horz = compareChiSquare(refImage.getHorizontalMatrix(), getHorizontalMatrix());
+    public void calculateSimilarityBW(MyImage refImage) {
+        double vert = compareCorrelation(refImage.getVerticalMatrixBW(), getVerticalMatrixBW());
+        double horz = compareCorrelation(refImage.getHorizontalMatrixBW(), getHorizontalMatrixBW());
 //store result in so class variable
-        similarity = (vert + horz) / 2;
+        similarity = Math.abs((vert + horz) / 2);
     }
 
-    private static double compareChiSquare(List<Double> refMatrix, List<Double> changingMatrix) {
+    private static double compareCorrelation(List<Double> refMatrix, List<Double> changingMatrix) {
         int maxMoves = changingMatrix.size() - refMatrix.size();
         List<Double> normRefMatrix = normalizeMatrix(refMatrix);
-        double finalResult = 10.0;
-        for (int i = 0; i <= maxMoves; i++) {
+        double finalResult = 0.0;
+        //take bigger steps. saves time. result doesn't change.
+        for (int i = 0; i <= maxMoves; i += 10) {
             List<Double> newChangingMatrix = new ArrayList<>();
             for (int j = i; j < refMatrix.size() + i; j++) {
                 newChangingMatrix.add(changingMatrix.get(j));
             }
             List<Double> normChaMatrix = normalizeMatrix(newChangingMatrix);
-            double tempResult = chiSquareMethod(normRefMatrix, normChaMatrix);
-            if (tempResult <= finalResult) {
-                finalResult = tempResult;
+            double tempResult = correlationMethod(normRefMatrix, normChaMatrix);
+            //the correlation coefficient can be -1 and +1. 
+            if (Math.abs(tempResult) > Math.abs(finalResult)) {
+                if (tempResult < 0 && tempResult <= finalResult) {
+                    finalResult = tempResult;
+                } else if (tempResult > 0 && tempResult >= finalResult) {
+                    finalResult = tempResult;
+                }
             }
         }
         return finalResult;
     }
 
     /**
-     * chi square algorithm. needed to compare matrices with each other.
+     * compares to normed list/matrices with each other. the result is the
+     * similarity of the two matrices. we use the Pearson correlation
+     * coefficient to calculate the similarity
      *
      * @param refMatrix
      * @param changingMatrix
      * @return
+     * @throws FileNotFoundException
      */
-    private static double chiSquareMethod(List<Double> refMatrix, List<Double> changingMatrix) {
+    private static double correlationMethod(List<Double> refMatrix, List<Double> changingMatrix) {
+        double sumOfRef = 0;
+        double sumOfCha = 0;
         double sizeOfMatrix = refMatrix.size();
-        double chiSquare = 0;
-        for (int i = 0; i < sizeOfMatrix; i++) {
-            double numerator = Math.pow((refMatrix.get(i) - changingMatrix.get(i)), 2);
-            double denominator = refMatrix.get(i) + changingMatrix.get(i);
-            chiSquare += (denominator != 0) ? (numerator / denominator) : 0;
+        double correlationNumerator = 0;
+        for (Double d : refMatrix) {
+            sumOfRef += d;
         }
-        return chiSquare;
+        for (Double d : changingMatrix) {
+            sumOfCha += d;
+        }
+        double averageRef = sumOfRef / sizeOfMatrix;
+        double averageCha = sumOfCha / sizeOfMatrix;
+        for (int i = 0; i < sizeOfMatrix; i++) {
+            correlationNumerator += (refMatrix.get(i) - averageRef) * (changingMatrix.get(i) - averageCha);
+        }
+        double tempRef = 0;
+        double tempCha = 0;
+        for (Double d : refMatrix) {
+            tempRef += Math.pow(d - averageRef, 2);
+        }
+        for (Double d : changingMatrix) {
+            tempCha += Math.pow(d - averageCha, 2);
+        }
+        double correlationDenominator = Math.sqrt(tempRef * tempCha);
+        double correlation = correlationNumerator / correlationDenominator;
+        return correlation;
+    }
+
+    /**
+     * same as createRefImageBW but used for grayscale comparison.
+     *
+     * @param xStartingPosition
+     * @param yStartingPosition
+     * @param xDistance
+     * @param yDistance
+     */
+    public void createRefImageGray(int xStartingPosition,
+            int yStartingPosition, int xDistance, int yDistance) {
+        pixelReader = rawImage.getPixelReader();
+        croppedImage = new WritableImage(pixelReader, xStartingPosition,
+                yStartingPosition, xDistance, yDistance);
+        croppedImage = createGrayScaleImage();
+        rawImage = null;
+
+    }
+
+    /**
+     * same as createCompImgBW but used for grayscale image comparison.
+     *
+     * @param xStartingPosition
+     * @param yStartingPosition
+     * @param xDistance
+     * @param yDistance
+     */
+    public void createCompImgGray(int xStartingPosition,
+            int yStartingPosition, int xDistance, int yDistance) {
+        pixelReader = rawImage.getPixelReader();
+        int ImageWidth = (int) rawImage.getWidth();
+        int ImageHeight = (int) rawImage.getHeight();
+        int newXDistance = (int) (xDistance + 250);
+        int newYDistance = (int) (yDistance + 250);
+
+//conditions to set the new startingPositions
+        if (xStartingPosition > (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
+            xStartingPosition -= (int) (newXDistance / 2);
+            yStartingPosition = 0;
+        } else if (xStartingPosition <= (newXDistance / 2) && yStartingPosition > (newYDistance / 2)) {
+            xStartingPosition = 0;
+            yStartingPosition -= (int) (newYDistance / 2);
+        } else if (xStartingPosition <= (newXDistance / 2) && yStartingPosition <= (newYDistance / 2)) {
+            xStartingPosition = 0;
+            yStartingPosition = 0;
+        } else if (xStartingPosition > (newXDistance / 2) && yStartingPosition > (newYDistance / 2)) {
+            xStartingPosition -= (int) (newXDistance / 2);
+            yStartingPosition -= (int) (newYDistance / 2);
+        }
+//conditions to set the new distances. like that the picture gets bigger
+        if ((xDistance + newXDistance) >= ImageWidth && (yDistance + newYDistance) < ImageHeight) {
+            xDistance = ImageWidth;
+            yDistance = newYDistance;
+        } else if ((xDistance + newXDistance) < ImageWidth && (yDistance + newYDistance) >= ImageHeight) {
+            xDistance = newXDistance;
+            yDistance = ImageHeight;
+        } else if ((xDistance + newXDistance) >= ImageWidth && (yDistance + newYDistance) >= ImageHeight) {
+            xDistance = ImageWidth;
+            yDistance = ImageHeight;
+        } else {
+            xDistance = newXDistance;
+            yDistance = newYDistance;
+        }
+//crops image
+        croppedImage = new WritableImage(pixelReader, xStartingPosition,
+                yStartingPosition, xDistance, yDistance);
+        croppedImage = createGrayScaleImage();
+        rawImage = null;
+    }
+    
+    /**
+     * same as calculateVerticalMatrixBW but its for grayscale image comparison.
+     */
+    public void calculateVerticalMatrixGray() {
+        List<Double> tempVertMatrix = new ArrayList<>();
+        double counter = 0;
+        int heightOfImage = (int) croppedImage.getHeight();
+        int widthOfImage = (int) croppedImage.getWidth();
+        for (int y = 0; y < heightOfImage; y++) {
+            for (int x = 0; x < widthOfImage; x++) {
+                counter += croppedImage.getPixelReader().getColor(x, y).getBlue();
+            }
+            tempVertMatrix.add(counter);
+            counter = 0;
+        }
+        verticalMatrix = tempVertMatrix;
+    }
+
+    public List<Double> getVerticalMatrixGray() {
+        if (verticalMatrix == null) {
+            calculateVerticalMatrixGray();
+        }
+        return verticalMatrix;
+    }
+
+    /**
+     * same as calculateHorizontalMatrixBW but its for grayscale image comparison.
+     */
+    public void calculateHorizontalMatrixGray() {
+        List<Double> tempHorzMatrix = new ArrayList<>();
+        double counter = 0;
+        int heightOfImage = (int) croppedImage.getHeight();
+        int widthOfImage = (int) croppedImage.getWidth();
+        for (int y = 0; y < widthOfImage; y++) {
+            for (int x = 0; x < heightOfImage; x++) {
+                counter += croppedImage.getPixelReader().getColor(y, x).getBlue();
+            }
+            tempHorzMatrix.add(counter);
+            counter = 0;
+        }
+        horizontalMatrix = tempHorzMatrix;
+    }
+
+    public List<Double> getHorizontalMatrixGray() {
+        if (horizontalMatrix == null) {
+            calculateHorizontalMatrixGray();
+        }
+        return horizontalMatrix;
+    }
+
+    /**
+     * calculates the similarity between to images. same as the BW version
+     *
+     * @param refImage
+     */
+    public void calculateSimilarityGray(MyImage refImage) {
+        double vert = compareCorrelation(refImage.getVerticalMatrixGray(), getVerticalMatrixGray());
+        double horz = compareCorrelation(refImage.getHorizontalMatrixGray(), getHorizontalMatrixGray());
+//store result in so class variable
+        similarity = Math.abs((vert + horz) / 2);
     }
 
     public MyImageResult getResult() {
