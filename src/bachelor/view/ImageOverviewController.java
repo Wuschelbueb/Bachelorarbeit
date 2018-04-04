@@ -174,7 +174,7 @@ public class ImageOverviewController {
      *
      * @param files
      */
-    private void listFiles(File[] files) {
+    public void listFiles(File[] files) {
         ObservableList<String> imageList = FXCollections.observableArrayList();
         this.fileList = files;
         for (File f : files) {

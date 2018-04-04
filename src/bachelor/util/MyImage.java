@@ -396,7 +396,6 @@ public class MyImage {
      * @param refMatrix
      * @param changingMatrix
      * @return
-     * @throws FileNotFoundException
      */
     private static double correlationMethod(List<Double> refMatrix, List<Double> changingMatrix) {
         double sumOfRef = 0;
