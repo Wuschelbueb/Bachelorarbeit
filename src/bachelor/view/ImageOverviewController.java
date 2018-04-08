@@ -16,12 +16,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -42,6 +46,8 @@ public class ImageOverviewController {
 
     private File[] fileList = null;
     private Double scalingRatio = null;
+    private Boolean selectMethod = null;
+    private ObservableList<String> method = FXCollections.observableArrayList("Binary", "Grayscale");
 
     @FXML
     private ListView<String> imageList;
@@ -61,12 +67,40 @@ public class ImageOverviewController {
     @FXML
     private AnchorPane rightPane;
 
+    @FXML
+    private ChoiceBox selectMethodBox;
+    
+    @FXML
+    public Button runButton;
+
     private MyApplication myApp = new MyApplication();
     private Main main;
     private RubberBandSelection rubberBandSelection;
 
     public ImageOverviewController() {
 
+    }
+
+    @FXML
+    private void initialize() {
+        selectMethodBox.setItems(method);
+    }
+
+    private void getValueChoiceBox() {
+        try {
+            String choiceBoxValue = (String) selectMethodBox.getValue();
+            if (choiceBoxValue.equals("Binary")) {
+                myApp.setComparisonMethod(true);
+            } else if (choiceBoxValue.equals("Grayscale")) {
+                myApp.setComparisonMethod(false);
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Dialog");
+            alert.setHeaderText("No method selected!");
+            alert.setContentText("Choose a Method!");
+            alert.showAndWait();
+        }
     }
 
     private void createAndFitImage(String path) {
@@ -239,6 +273,7 @@ public class ImageOverviewController {
             }
         } catch (Exception e) {
         }
+        getValueChoiceBox();
     }
 
     /**
@@ -258,6 +293,12 @@ public class ImageOverviewController {
             alert.showAndWait();
         }
         listResults();
+        main.getPrimaryStage().getScene().setCursor(Cursor.DEFAULT);
+    }
+    
+    @FXML
+    private void changeCursorToWait() {
+        main.getPrimaryStage().getScene().setCursor(Cursor.WAIT);
     }
 
     private void listResults() {

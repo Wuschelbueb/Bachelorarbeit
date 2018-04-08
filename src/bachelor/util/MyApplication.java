@@ -40,6 +40,18 @@ public class MyApplication {
     private List<MyImageResult> imageList = new ArrayList<>();
     private MyImage refImage = null;
     private String refImgName = null;
+    private Boolean methodBW = null;
+    private Boolean methodGray = null;
+
+    public void setComparisonMethod(boolean chooseMethod) {
+        if (chooseMethod) {
+            this.methodBW = true;
+            this.methodGray = false;
+        } else {
+            this.methodBW = false;
+            this.methodGray = true;
+        }
+    }
 
     public void setRefImage(String refImgName) {
         this.refImgName = refImgName;
@@ -90,26 +102,48 @@ public class MyApplication {
         }
 
         long start = new Date().getTime();
-        refImage.createRefImageBW(xStart, yStart, width, height);
         //is needed to execute in multithreading
         ExecutorService executor = Executors.newFixedThreadPool(numberOfCores);
         //needed to temporarly save results
         List<Future> futureList = new ArrayList();
+        //choose between binary image comparison or grayscale comparison
+        if (methodBW) {
+            refImage.createRefImageBW(xStart, yStart, width, height);
+            System.out.println("Method: Binary");
+            System.out.println("Referential Image: " + refImage.getName());
+            //create images and calculate the similarity
+            for (File ogFile : ogFiles) {
+                if (!refImage.getName().equals(ogFile.getName())) {
+                    //directly cerates the call()-method of the Interface Callable with lambdas
+                    Callable<MyImageResult> callable = () -> {
+                        MyImage compImg = new MyImage(ogFile);
+                        compImg.createCompImgBW(xStart, yStart, width, height);
+                        compImg.calculateSimilarityBW(refImage);
+                        return compImg.getResult();
+                    };
 
-        System.out.println("Referential Image: " + refImage.getName());
-        //create images and calculate the similarity
-        for (File ogFile : ogFiles) {
-            if (!refImage.getName().equals(ogFile.getName())) {
-                //directly cerates the call()-method of the Interface Callable with lambdas
-                Callable<MyImageResult> callable = () -> {
-                    MyImage compImg = new MyImage(ogFile);
-                    compImg.createCompImgBW(xStart, yStart, width, height);
-                    compImg.calculateSimilarityBW(refImage);
-                    return compImg.getResult();
-                };
+                    Future<MyImageResult> future = executor.submit(callable);
+                    futureList.add(future);
+                }
+            }
+        } else if (methodGray) {
+            refImage.createRefImageGray(xStart, yStart, width, height);
+            System.out.println("Method: Grayscale");
+            System.out.println("Referential Image: " + refImage.getName());
+            //create images and calculate the similarity
+            for (File ogFile : ogFiles) {
+                if (!refImage.getName().equals(ogFile.getName())) {
+                    //directly cerates the call()-method of the Interface Callable with lambdas
+                    Callable<MyImageResult> callable = () -> {
+                        MyImage compImg = new MyImage(ogFile);
+                        compImg.createCompImgGray(xStart, yStart, width, height);
+                        compImg.calculateSimilarityGray(refImage);
+                        return compImg.getResult();
+                    };
 
-                Future<MyImageResult> future = executor.submit(callable);
-                futureList.add(future);
+                    Future<MyImageResult> future = executor.submit(callable);
+                    futureList.add(future);
+                }
             }
         }
         //stops the executorService
@@ -131,7 +165,7 @@ public class MyApplication {
         long end = new Date().getTime();
         long duration = end - start;
         System.out.println("finished after: " + duration / 1000 + "s");
-        
+
         //based on: http://code.makery.ch/blog/javafx-dialogs-official/
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Finished!");
@@ -139,8 +173,8 @@ public class MyApplication {
         alert.setContentText("finished after: " + duration / 1000 + "s");
         alert.showAndWait();
     }
-    
-    public List<MyImageResult> getResults(){
+
+    public List<MyImageResult> getResults() {
         return imageList;
     }
 }

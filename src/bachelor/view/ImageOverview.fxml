@@ -4,6 +4,8 @@
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
@@ -13,7 +15,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bachelor.view.ImageOverviewController">
+<AnchorPane prefHeight="700.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bachelor.view.ImageOverviewController">
    <children>
       <BorderPane prefHeight="700.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -62,12 +64,14 @@
             </SplitPane>
          </center>
          <bottom>
-            <ButtonBar maxHeight="-Infinity" prefHeight="35.0" prefWidth="417.0" BorderPane.alignment="CENTER">
+            <ButtonBar buttonMinWidth="80.0" maxHeight="-Infinity" prefHeight="35.0" prefWidth="417.0" BorderPane.alignment="CENTER">
               <buttons>
                 <Button mnemonicParsing="false" onAction="#handleOpenDirectory" text="Open Directory" />
-                  <Button mnemonicParsing="false" onAction="#handleSetRefImg" text="Set Ref Image" />
+                  <Label prefHeight="17.0" text="Select Method:" />
+                  <ChoiceBox fx:id="selectMethodBox" prefWidth="150.0" />
+                  <Button mnemonicParsing="false" onAction="#handleSetRefImg" text="Set Ref. Image" />
                   <Button mnemonicParsing="false" onAction="#handleCropImage" text="Crop Image" />
-                  <Button mnemonicParsing="false" onAction="#handleRun" text="Run" />
+                  <Button fx:id="runButton" mnemonicParsing="false" onMousePressed="#changeCursorToWait" onMouseReleased="#handleRun" text="Run" />
               </buttons>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
