@@ -69,7 +69,7 @@ public class ImageOverviewController {
 
     @FXML
     private ChoiceBox selectMethodBox;
-    
+
     @FXML
     public Button runButton;
 
@@ -229,7 +229,11 @@ public class ImageOverviewController {
         DirectoryChooser directory = new DirectoryChooser();
         File[] allFiles = main.getDirectory(directory);
         myApp.setFiles(allFiles);
-        listFiles(allFiles);
+        //added try catch to avoid nullPointerException
+        try {
+            listFiles(allFiles);
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -295,7 +299,7 @@ public class ImageOverviewController {
         listResults();
         main.getPrimaryStage().getScene().setCursor(Cursor.DEFAULT);
     }
-    
+
     @FXML
     private void changeCursorToWait() {
         main.getPrimaryStage().getScene().setCursor(Cursor.WAIT);
